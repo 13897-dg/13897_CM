@@ -1,0 +1,11 @@
+# Lixo do Android Studio e IntelliJ
+.idea/
+.gradle/
+build/
+capture/
+*.iml
+local.properties
+.DS_Store
+
+# Ficheiros de log
+*.log
