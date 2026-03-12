@@ -13,23 +13,28 @@
         android:layout_height="wrap_content"
         android:background="#6200EE"
         android:padding="16dp"
-        android:text="System Info"
+        android:text="@string/header_title"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/systemInfoTextView"
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
-        android:text="Information will appear here..."
-        android:textSize="14sp"
-        android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerTextView" />
+        app:layout_constraintTop_toBottomOf="@id/headerTextView">
+
+        <TextView
+            android:id="@+id/systemInfoTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Information will appear here..."
+            android:textSize="14sp"
+            android:typeface="monospace" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
