@@ -1,0 +1,5 @@
+<resources>
+    <string name="hello_string">Hello world v2</string>
+    <string name="activity_oncreate_msg">Activity %1$s onCreate</string>
+    <string name="header_title">System Info</string>
+</resources>
