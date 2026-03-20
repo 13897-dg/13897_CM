@@ -15,5 +15,11 @@ fun main() {
         i -> (i + 1) * (i + 1)
     }
 
+    println(squares_1[0])
+    println(squares_1[squares_1.size-1])
+    println(squares_2[0])
+    println(squares_2[squares_2.size-1])
+    println(squares_3[0])
+    println(squares_3[squares_3.size-1])
 
 }
