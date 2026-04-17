@@ -27,3 +27,11 @@ A horizontal blue Material loader will scroll smoothly along the bottom boundary
 1. Write XML definition inside Main Layout.
 2. Update Kotlin code bindings.
 3. Test using AntiGravity IDE.
+
+## Feature 2: Image Details Popup Screen
+
+**Description:**
+Implement an explicit Image Details Activity. Clicking on any photo within the feed will navigate the user to this dedicated view, passing the specific properties of the selected image.
+
+**Expected UI Changes:**
+A new full-screen view containing a maximum-resolution render of the photograph, accompanied by explicit labels for the Author Name, ID, Location/Dimensions, and the URL link.
