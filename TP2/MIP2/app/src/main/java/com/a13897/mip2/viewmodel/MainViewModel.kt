@@ -29,7 +29,9 @@ class MainViewModel : ViewModel() {
 
     fun fetchImages(isRefresh: Boolean = false) {
         if (isRefresh) {
-            currentPage = 1
+            // Picsum API is highly deterministic. Page 1 is always the same identical list.
+            // To simulate a "random feed" refresh, we jump to a random page.
+            currentPage = (1..50).random()
         }
         
         viewModelScope.launch {

@@ -44,19 +44,17 @@ class MainActivity : AppCompatActivity() {
             viewModel.uiState.collect { state ->
                 when (state) {
                     is UiState.Loading -> {
-                        if (!binding.swipeRefreshLayout.isRefreshing) {
-                            binding.progressBar.visibility = View.VISIBLE
-                        }
+                        binding.loadingIndicator.visibility = View.VISIBLE
                         binding.errorTextView.visibility = View.GONE
                     }
                     is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
+                        binding.loadingIndicator.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
                         binding.errorTextView.visibility = View.GONE
                         adapter.submitList(state.data)
                     }
                     is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
+                        binding.loadingIndicator.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
                         binding.errorTextView.visibility = View.VISIBLE
                         binding.errorTextView.text = state.message

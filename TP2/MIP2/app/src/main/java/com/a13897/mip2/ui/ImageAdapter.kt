@@ -31,6 +31,7 @@ class ImageAdapter(private var images: List<ImageItem> = emptyList()) : Recycler
             binding.authorTextView.text = item.author
             Glide.with(binding.root.context)
                 .load(item.download_url)
+                .placeholder(android.R.color.darker_gray)
                 .into(binding.imageView)
         }
     }
