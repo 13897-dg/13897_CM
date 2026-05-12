@@ -4,6 +4,11 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
+import android.widget.EditText
+import java.net.URL
+import java.io.InputStreamReader
+import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
     var day = true
