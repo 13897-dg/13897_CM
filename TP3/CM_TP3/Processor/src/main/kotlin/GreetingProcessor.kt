@@ -10,11 +10,9 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
-// avisa o compilador que isto e um processador
 @AutoService(Processor::class)
-// versao do java
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
-// diz qual etiqueta vamos procurar no codigo
+// so vai procurar esta etiqueta no codigo
 @SupportedAnnotationTypes("annotations.Greeting")
 class GreetingProcessor : AbstractProcessor() {
 
@@ -22,57 +20,65 @@ class GreetingProcessor : AbstractProcessor() {
         annotations: MutableSet<out TypeElement>,
         roundEnv: RoundEnvironment
     ): Boolean {
-        // cria uma lista para guardar as funcoes que encontrarmos
+        // cria um mapa pra guardar onde estao as etiquetas q encontrou
         val classMethodMap = mutableMapOf<TypeElement, MutableList<ExecutableElement>>()
 
-        // procura tudo o que tem a etiqueta greeting
+        // procura todas as coisas q tenham a etiqueta greeting
         for (element in roundEnv.getElementsAnnotatedWith(Greeting::class.java)) {
-            // garante que e uma funcao
             if (element is ExecutableElement) {
-                // descobre em que classe a funcao ta
+                // descobre a qual classe esta funcao pertence
                 val enclosingClass = element.enclosingElement as TypeElement
-                // guarda a funcao na nossa lista
+                // guarda a funcao e a classe dela no mapa pra usar a seguir
                 classMethodMap.computeIfAbsent(enclosingClass) {
                     mutableListOf()
                 }.add(element)
             }
         }
 
-        // vai classe a classe e manda gerar o ficheiro novo
+        // classe a classe
         for ((classElement, methods) in classMethodMap) {
+            // manda criar um ficheiro novo para esta classe
             generateKotlinWrapperClass(classElement, methods)
         }
 
         return true
     }
 
+    // funcao q desenha a classe nova
     private fun generateKotlinWrapperClass(
         classElement: TypeElement,
         methods: List<ExecutableElement>
     ) {
+        // descobre a pasta onde a classe ta guardada
         val packageName = processingEnv.elementUtils.getPackageOf(classElement).toString()
+        // guarda o nome da classe original
         val originalClassName = classElement.simpleName.toString()
-        // o nome da classe nova vai ter wrapper no fim
         val wrapperClassName = "${originalClassName}Wrapper"
 
-        // usa o kotlinpoet para comecar a montar a classe nova
+        // começa a construir a classe nova com a biblioteca kotlinpoet
         val classBuilder = TypeSpec.classBuilder(wrapperClassName)
+            // cria o construtor pra receber dados
             .primaryConstructor(
                 FunSpec.constructorBuilder()
+                    // pede a classe original como argumento
                     .addParameter("original", ClassName(packageName, originalClassName))
                     .build()
             )
+            // guarda a classe original numa variavel pra poder chamar as funcoes dela
             .addProperty(
                 PropertySpec.builder("original", ClassName(packageName, originalClassName))
                     .initializer("original")
                     .build()
             )
+            // diz q a classe e publica
             .addModifiers(KModifier.PUBLIC, KModifier.FINAL)
 
-        // cria as funcoes novas
+        // vai fazer isto pra cada funcao q tinha etiqueta
         for (method in methods) {
+            // copia o nome da funcao antiga
             val methodName = method.simpleName.toString()
 
+            // ve se a funcao antiga pedia variaveis tipo x ou y e copia isso tmb
             val parameters = method.parameters.map { param ->
                 ParameterSpec.builder(
                     param.simpleName.toString(),
@@ -80,36 +86,35 @@ class GreetingProcessor : AbstractProcessor() {
                 ).build()
             }
 
+            // prepara o texto com os argumentos para quando formos chamar a funcao
             val arguments = method.parameters.joinToString(", ") {
                 it.simpleName.toString()
             }
 
-            // vai ler o texto que escrevemos dentro da etiqueta
+            // vai a etiqueta ver q texto escrevemos se nao tiver nada escreve hello
             val greetingMessage = method.getAnnotation(Greeting::class.java)?.message ?: "Hello!"
 
-            // monta a funcao em si
+            // comeca a construir a funcao nova
             val methodBuilder = FunSpec.builder(methodName)
                 .addModifiers(KModifier.PUBLIC, KModifier.FINAL)
+                // mete as variaveis q copiou
                 .addParameters(parameters)
-                // escreve a linha de codigo que vai dar o print do texto
                 .addStatement("println(%S)", greetingMessage)
-                // escreve a linha de codigo que chama a funcao verdadeira
                 .addStatement("original.$methodName($arguments)")
 
+            // mete a funcao nova dentro da classe nova
             classBuilder.addFunction(methodBuilder.build())
         }
 
-        // prepara o ficheiro
+        // empacota a classe toda e prepara o ficheiro
         val file = FileSpec.builder(packageName, wrapperClassName)
             .addType(classBuilder.build())
             .build()
 
-        // tenta gravar o ficheiro gerado
+        // parte q grava o ficheiro novo no pc
         try {
-            // descobre a pasta certa pra guardar as coisas geradas
             val kaptKotlinGeneratedDir = processingEnv.options["kapt.kotlin.generated"]
             if (kaptKotlinGeneratedDir != null) {
-                // guarda mesmo o ficheiro no pc
                 file.writeTo(File(kaptKotlinGeneratedDir))
             } else {
                 processingEnv.messager.printMessage(
