@@ -21,7 +21,7 @@ class RegexProcessor : AbstractProcessor() {
     ): Boolean {
         val classMethodMap = mutableMapOf<TypeElement, MutableList<ExecutableElement>>()
 
-        // Encontra todos os métodos com a anotação @Greeting
+        // Encontra todos os métodos com a anotação @Extract
         for (element in roundEnv.getElementsAnnotatedWith(Extract::class.java)) {
             if (element is ExecutableElement) {
                 val enclosingClass = element.enclosingElement as TypeElement
@@ -45,10 +45,10 @@ class RegexProcessor : AbstractProcessor() {
     ) {
         val packageName = processingEnv.elementUtils.getPackageOf(classElement).toString()
         val originalClassName = classElement.simpleName.toString()
-        val generatedClassName = "${originalClassName}Extractor"
+        val wrapperClassName = "${originalClassName}Wrapper"
 
         // Cria a classe wrapper usando composição
-        val classBuilder = TypeSpec.classBuilder(generatedClassName)
+        val classBuilder = TypeSpec.classBuilder(wrapperClassName)
             .primaryConstructor(
                 FunSpec.constructorBuilder()
                     .addParameter("original", ClassName(packageName, originalClassName))
@@ -76,19 +76,19 @@ class RegexProcessor : AbstractProcessor() {
                 it.simpleName.toString()
             }
 
-            val greetingMessage = method.getAnnotation(Extract::class.java)?.regex ?: "Hello!"
+            val regexMessage = method.getAnnotation(Extract::class.java)?.regex ?: "Hello!"
 
             val methodBuilder = FunSpec.builder(methodName)
                 .addModifiers(KModifier.PUBLIC, KModifier.FINAL)
                 .addParameters(parameters)
-                .addStatement("println(%S)", greetingMessage) // Imprime a mensagem
+                .addStatement("println(%S)", regexMessage) // Imprime a mensagem
                 .addStatement("original.$methodName($arguments)") // Chama o método original
 
             classBuilder.addFunction(methodBuilder.build())
         }
 
         // Constrói o ficheiro Kotlin
-        val file = FileSpec.builder(packageName, generatedClassName)
+        val file = FileSpec.builder(packageName, wrapperClassName)
             .addType(classBuilder.build())
             .build()
 

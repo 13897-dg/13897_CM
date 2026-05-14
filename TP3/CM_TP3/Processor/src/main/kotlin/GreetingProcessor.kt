@@ -10,8 +10,11 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
+// avisa o compilador que isto e um processador
 @AutoService(Processor::class)
+// versao do java
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
+// diz qual etiqueta vamos procurar no codigo
 @SupportedAnnotationTypes("annotations.Greeting")
 class GreetingProcessor : AbstractProcessor() {
 
@@ -19,19 +22,23 @@ class GreetingProcessor : AbstractProcessor() {
         annotations: MutableSet<out TypeElement>,
         roundEnv: RoundEnvironment
     ): Boolean {
+        // cria uma lista para guardar as funcoes que encontrarmos
         val classMethodMap = mutableMapOf<TypeElement, MutableList<ExecutableElement>>()
 
-        // Encontra todos os métodos com a anotação @Greeting
+        // procura tudo o que tem a etiqueta greeting
         for (element in roundEnv.getElementsAnnotatedWith(Greeting::class.java)) {
+            // garante que e uma funcao
             if (element is ExecutableElement) {
+                // descobre em que classe a funcao ta
                 val enclosingClass = element.enclosingElement as TypeElement
+                // guarda a funcao na nossa lista
                 classMethodMap.computeIfAbsent(enclosingClass) {
                     mutableListOf()
                 }.add(element)
             }
         }
 
-        // Gera as classes "wrapper" para cada classe original
+        // vai classe a classe e manda gerar o ficheiro novo
         for ((classElement, methods) in classMethodMap) {
             generateKotlinWrapperClass(classElement, methods)
         }
@@ -45,9 +52,10 @@ class GreetingProcessor : AbstractProcessor() {
     ) {
         val packageName = processingEnv.elementUtils.getPackageOf(classElement).toString()
         val originalClassName = classElement.simpleName.toString()
+        // o nome da classe nova vai ter wrapper no fim
         val wrapperClassName = "${originalClassName}Wrapper"
 
-        // Cria a classe wrapper usando composição
+        // usa o kotlinpoet para comecar a montar a classe nova
         val classBuilder = TypeSpec.classBuilder(wrapperClassName)
             .primaryConstructor(
                 FunSpec.constructorBuilder()
@@ -61,7 +69,7 @@ class GreetingProcessor : AbstractProcessor() {
             )
             .addModifiers(KModifier.PUBLIC, KModifier.FINAL)
 
-        // Gera os métodos wrapper
+        // cria as funcoes novas
         for (method in methods) {
             val methodName = method.simpleName.toString()
 
@@ -76,26 +84,32 @@ class GreetingProcessor : AbstractProcessor() {
                 it.simpleName.toString()
             }
 
+            // vai ler o texto que escrevemos dentro da etiqueta
             val greetingMessage = method.getAnnotation(Greeting::class.java)?.message ?: "Hello!"
 
+            // monta a funcao em si
             val methodBuilder = FunSpec.builder(methodName)
                 .addModifiers(KModifier.PUBLIC, KModifier.FINAL)
                 .addParameters(parameters)
-                .addStatement("println(%S)", greetingMessage) // Imprime a mensagem
-                .addStatement("original.$methodName($arguments)") // Chama o método original
+                // escreve a linha de codigo que vai dar o print do texto
+                .addStatement("println(%S)", greetingMessage)
+                // escreve a linha de codigo que chama a funcao verdadeira
+                .addStatement("original.$methodName($arguments)")
 
             classBuilder.addFunction(methodBuilder.build())
         }
 
-        // Constrói o ficheiro Kotlin
+        // prepara o ficheiro
         val file = FileSpec.builder(packageName, wrapperClassName)
             .addType(classBuilder.build())
             .build()
 
-        // Escreve o ficheiro gerado
+        // tenta gravar o ficheiro gerado
         try {
+            // descobre a pasta certa pra guardar as coisas geradas
             val kaptKotlinGeneratedDir = processingEnv.options["kapt.kotlin.generated"]
             if (kaptKotlinGeneratedDir != null) {
+                // guarda mesmo o ficheiro no pc
                 file.writeTo(File(kaptKotlinGeneratedDir))
             } else {
                 processingEnv.messager.printMessage(
