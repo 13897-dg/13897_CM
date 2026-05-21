@@ -1,6 +1,6 @@
 # Application Concept Document (ACD)
 ## 21 Duel
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Data:** Maio 2026  
 **Unidade Curricular:** Computação Móvel  
 **Instituição:** Escola Náutica Infante D. Henrique  
@@ -20,6 +20,29 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 - Jogadores casuais de telemóvel (15–35 anos)
 - Fãs de jogos de cartas digitais (ex: Hearthstone, Slay the Spire, Blackjack)
 - Utilizadores que procuram partidas rápidas e competitivas
+
+### Personas
+
+**Persona 1 — O Casual**
+- 16–22 anos, joga no telemóvel para passar o tempo
+- Quer partidas rápidas, não quer ler regras complexas
+- Nunca vai pagar PRO mas vê anúncios
+- Usa o tutorial, depende dos tooltips das cartas especiais
+- Joga maioritariamente vs IA
+
+**Persona 2 — O Competitivo**
+- 18–30 anos, fã de jogos de cartas digitais
+- Quer ranking, quer ganhar, estuda as cartas especiais
+- Candidato PRO — paga para ter cosméticos exclusivos e sem anúncios
+- Joga quase exclusivamente online
+
+**Persona 3 — O Social**
+- 15–25 anos, joga principalmente com amigos
+- Usa salas privadas com código, não liga ao matchmaking
+- Pode pagar PRO se os amigos pagarem
+- Não liga muito ao ranking mas gosta de personalizar o avatar
+
+> Nota: um utilizador real pode combinar características de várias personas. A sobreposição mais comum e mais valiosa é Competitivo + Social — joga online, usa salas privadas com amigos, e é o perfil mais provável de converter para PRO.
 
 ---
 
@@ -45,6 +68,7 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 - Cada ronda tem uma **aposta** (começa em 1, aumenta ao longo da partida — frequência por definir)
 - Quem perde a ronda perde vidas igual ao valor da aposta
 - O jogo termina quando um jogador chega a **0 vidas**
+- Empate na partida é impossível — só um jogador pode chegar a 0 vidas
 
 ### 3.4 Timeout e Jogo Online
 - Cada ronda tem um **timer** (duração por definir)
@@ -59,6 +83,7 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 - Existem dois tipos de efeito:
   - **Imediato** — o efeito acontece ao jogar a carta
   - **Passivo/Campo** — o efeito mantém-se enquanto a carta estiver em campo durante a ronda
+- Pressão longa (long press) sobre uma carta especial no inventário mostra uma janela com a descrição do efeito
 
 ### 3.6 Regras das Cartas de Objectivo
 - Cartas "até X" (Até 17, Até 24, Até 27) — **só pode haver uma activa de cada vez**; a mais recente substitui a anterior; afectam ambos os jogadores
@@ -102,6 +127,11 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 - **Online 1v1** — matchmaking automático ou sala privada com código; tempo real
 - **vs IA** — partida contra inteligência artificial local
 
+### 4.1 Comportamento da IA
+- Dificuldade única (simples)
+- Se pontuação actual ≤ objectivo - 3 → pede carta; caso contrário → stay
+- Joga 1 carta especial por ronda, escolhida aleatoriamente
+
 ---
 
 ## 5. Tutorial (conteúdo)
@@ -125,7 +155,7 @@ A aplicação conta com 7 ecrãs principais, desenvolvidos em simultâneo como w
 
 | Ecrã | Descrição |
 |---|---|
-| 1. Login| Autenticação com email/password ou Google |
+| 1. Login | Autenticação com email/password ou Google |
 | 2. Menu Principal | Hub central com acesso a todos os modos e secções |
 | 3. Lobby | Matchmaking online e criação/entrada em sala privada |
 | 4. Jogo | Campo de cartas com mãos, zona de especiais e controlos |
@@ -145,7 +175,7 @@ A aplicação conta com 7 ecrãs principais, desenvolvidos em simultâneo como w
 ### Feature paga — PRO (1€/mês)
 - Baralhos exclusivos
 - Temas de mesa personalizados
-- Avatar animado
+- Avatares animados exclusivos
 - Sem anúncios
 
 ### Projecção
@@ -173,8 +203,22 @@ Entidades identificadas:
 - **Ronda** — cada ronda dentro de uma partida
 - **CartaEspecial** — inventário de cartas especiais durante a partida
 - **CartaUsada** — registo das cartas especiais jogadas em cada ronda
-- **Cosmético** — itens visuais desbloqueáveis
+- **Cosmético** — todos os itens visuais desbloqueáveis (avatares, baralhos, temas de mesa)
 - **SubscriçãoPRO** — registo da subscrição activa do utilizador
+
+### 9.1 Diagrama E-A Completo (com atributos)
+
+Diagrama disponível em `/docs/concept/entity_diagram_full.png`.
+
+| Entidade | Atributos |
+|---|---|
+| Utilizador | id, email, password, username, idAvatar (FK), vitorias, derrotas |
+| Partida | id, idJogador1 (FK), idJogador2 (FK), estado, vencedor, vidasJogador1, vidasJogador2 |
+| Ronda | id, idPartida (FK), numero, vencedor, aposta, objectivo, cartasDisponiveis, timestampInicio |
+| CartaEspecial | id, nome, descricao, tipo, idJogador (FK), usada |
+| CartaUsada | id, idRonda (FK), idCartaEspecial (FK), idJogador, turno |
+| Cosmético | id, nome, tipo (avatar/baralho/tema), exclusivoPRO, desbloqueio (default/nivel/PRO) |
+| SubscriçãoPRO | id, idUtilizador (FK), dataInicio, dataRenovacao, activa |
 
 ---
 
@@ -186,3 +230,4 @@ Entidades identificadas:
 - Quantidade de segundos que o "Massacre" retira ao timer
 - Multilíngue — português, inglês e uma terceira língua
 - Sistema de ranking/classificação online — tabela global ou só registo V/D?
+- Níveis e XP — esqueleto a definir (implementação futura)
