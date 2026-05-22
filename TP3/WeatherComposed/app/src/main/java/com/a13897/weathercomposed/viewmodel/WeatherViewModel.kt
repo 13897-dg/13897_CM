@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class WeatherUIState(
+    //valores default primeiro estado
     val latitude: Float = 40.6405f,
     val longitude: Float = -8.6538f,
     val temperature: Float = 0f,
@@ -28,6 +29,7 @@ class WeatherViewModel : ViewModel() {
         fetchWeather()
     }
 
+    // o que faz o utilizador poder alterar os valores das coordenadas
     fun updateLatitude(lat: Float) {
         _uiState.update { it.copy(latitude = lat) }
     }
@@ -36,6 +38,7 @@ class WeatherViewModel : ViewModel() {
         _uiState.update { it.copy(longitude = lon) }
     }
 
+    //ligaçao a API que vai buscar os valores do tempo à internet
     fun fetchWeather() {
         viewModelScope.launch {
             val data = WeatherApiClient.getWeather(_uiState.value.latitude, _uiState.value.longitude)
