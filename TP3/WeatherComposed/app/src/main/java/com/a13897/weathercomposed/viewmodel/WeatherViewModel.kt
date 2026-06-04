@@ -22,7 +22,9 @@ data class WeatherUIState(
 )
 
 class WeatherViewModel : ViewModel() {
+    // flow privada que pode alterar valores, usada pelo fetchweather e updateLatitude e updateLongitude
     private val _uiState = MutableStateFlow(WeatherUIState())
+    // flow publica que mostra os valores no ecra ao utilizador, imutavel
     val uiState: StateFlow<WeatherUIState> = _uiState.asStateFlow()
 
     init {

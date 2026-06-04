@@ -45,7 +45,7 @@ class RegexProcessor : AbstractProcessor() {
     ) {
         val packageName = processingEnv.elementUtils.getPackageOf(classElement).toString()
         val originalClassName = classElement.simpleName.toString()
-        val wrapperClassName = "${originalClassName}Wrapper"
+        val wrapperClassName = "${originalClassName}Extractor"
 
         // Cria a classe wrapper usando composição
         val classBuilder = TypeSpec.classBuilder(wrapperClassName)
