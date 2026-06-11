@@ -1,6 +1,10 @@
 package contributors
 
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -34,6 +38,9 @@ class ContributorsUI : JFrame("GitHub Contributors"), Contributors {
 
     override val job = Job()
 
+    private val _loadingState = MutableStateFlow(Contributors.LoadingStateData())
+    override val loadingState: StateFlow<Contributors.LoadingStateData> = _loadingState.asStateFlow()
+
     init {
         // Create UI
         rootPane.contentPane = JPanel(GridBagLayout()).apply {
@@ -56,6 +63,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), Contributors {
         }
         // Initialize actions
         init()
+        observeLoadingStatus()
     }
 
     override fun getSelectedVariant(): Variant = variant.getItemAt(variant.selectedIndex)
@@ -75,6 +83,25 @@ class ContributorsUI : JFrame("GitHub Contributors"), Contributors {
     override fun setLoadingStatus(text: String, iconRunning: Boolean) {
         loadingStatus.text = text
         loadingStatus.icon = if (iconRunning) loadingIcon else null
+    }
+
+    override fun updateLoadingStatus(newStatus: Contributors.LoadingStateData) {
+        _loadingState.value = newStatus
+    }
+
+    override fun observeLoadingStatus() {
+        launch {
+            loadingState.collect { status ->
+                val text = "Loading status: " + when (status.status) {
+                    Contributors.LoadingStatus.COMPLETED -> "completed in ${status.elapsedTime}"
+                    Contributors.LoadingStatus.IN_PROGRESS -> "in progress ${status.elapsedTime}"
+                    Contributors.LoadingStatus.CANCELED -> "canceled"
+                    Contributors.LoadingStatus.INIT -> "init"
+                }
+                loadingStatus.text = text
+                loadingStatus.icon = if (status.status == Contributors.LoadingStatus.IN_PROGRESS) loadingIcon else null
+            }
+        }
     }
 
     override fun addCancelListener(listener: ActionListener) {
