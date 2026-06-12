@@ -32,6 +32,7 @@ private fun loadProperties(): Properties {
         val configFile = java.io.File(configFilePath)
         if (!configFile.exists()) {
             println("⚠️ Configuration file not found: $configFilePath")
+            println("⚠️ Looking at absolute path: ${configFile.absolutePath}")
             println("⚠️ Please create this file with your API keys and settings")
             return properties
         }

@@ -74,6 +74,41 @@ interface AIAssistant {
         get() = properties.getProperty(apiKeyName)
             ?: throw IllegalStateException("API key $apiKeyName not found in configuration file.")
 
+    val temperature: Double?
+        get() = properties.getProperty("temperature")?.toDoubleOrNull()
+            ?: properties.getProperty("TEMPERATURE")?.toDoubleOrNull()
+
+    val maxTokens: Int?
+        get() = properties.getProperty("max_tokens")?.toIntOrNull()
+            ?: properties.getProperty("MAX_TOKENS")?.toIntOrNull()
+
+    /**
+     * Analyzes the sentiment of the provided text on a 7-point scale
+     * and returns a JSON response containing the rating and a justification.
+     */
+    suspend fun analyzeSentiment(text: String): String {
+        val prompt = """
+            Analyze the sentiment of the following text:
+            "$text"
+
+            Evaluate it on a 7-point scale:
+            1. Very Negative
+            2. Negative
+            3. Slightly Negative
+            4. Neutral
+            5. Slightly Positive
+            6. Positive
+            7. Very Positive
+
+            You must respond ONLY with a JSON object in this exact format:
+            {
+              "rating": <rating_number_between_1_and_7>,
+              "justification": "<brief explanation of the rating>"
+            }
+        """.trimIndent()
+
+        return apiCallWithBackoff(prompt)
+    }
 
     /**
      * Returns the name/identifier of the system being used
@@ -126,7 +161,7 @@ interface AIAssistant {
      */
     suspend fun apiCallWithBackoff(input: String): String {
         var attempts = 0
-        val maxAttempts = 5  // Maximum number of retry attempts
+        val maxAttempts = 7  // Maximum number of retry attempts
         val baseDelay = 1000L  // Base delay in milliseconds (1 second)
 
         while (attempts < maxAttempts) {
@@ -137,9 +172,10 @@ interface AIAssistant {
             } catch (e: Exception) {
                 logger.error("Error message: ${e.message}")
 
-                // Only retry on rate-limiting errors (HTTP 429)
-                if (e.message?.contains("429") == true) {
-                    logger.warn("Error 429: Too Many Requests. Will delay and retry.")
+                // Retry on rate-limiting (429) and temporary service unavailability (503)
+                if (e.message?.contains("429") == true || e.message?.contains("503") == true) {
+                    val errCode = if (e.message?.contains("429") == true) "429" else "503"
+                    logger.warn("Error $errCode: Transient API Error. Will delay and retry.")
                     attempts++
 
                     // Calculate exponential backoff delay: baseDelay * 2^attempts

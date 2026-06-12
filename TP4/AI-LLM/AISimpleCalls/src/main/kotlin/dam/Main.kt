@@ -27,13 +27,14 @@ fun main() = runBlocking {
 
     // Display a welcome message
     println("💬 Type your questions and press Enter to chat with the AI.")
+    println("💬 To analyze sentiment on a 7-point scale, use: /sentiment <your text>")
     println("💬 Press Ctrl+D (Unix/Mac) or Ctrl+Z (Windows) to exit.\n")
 
     // Main interaction loop
     while (true) {
         println("➖➖➖➖➖➖➖➖➖➖")
         // Ask for question input and read it from the console
-        print("🧠 Your question: ")
+        print("🧠 Your question (or /sentiment <text>): ")
         val input = readlnOrNull() ?: break
 
         // If blank input, write a help message and continue to ask for input
@@ -43,7 +44,16 @@ fun main() = runBlocking {
         }
 
         // Process input
-        val output = assistant.processInput(input)
+        val output = if (input.trim().startsWith("/sentiment ", ignoreCase = true)) {
+            val textToAnalyze = input.trim().substringAfter("/sentiment ").trim()
+            if (textToAnalyze.isBlank()) {
+                "⚠️ Please provide the text to analyze after /sentiment"
+            } else {
+                assistant.analyzeSentiment(textToAnalyze)
+            }
+        } else {
+            assistant.processInput(input)
+        }
         println("\n🤖 Answer: $output\n\n")
     }
 

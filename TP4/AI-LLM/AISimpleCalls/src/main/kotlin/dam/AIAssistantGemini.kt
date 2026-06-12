@@ -24,7 +24,7 @@ class AIAssistantGemini(override val properties: Properties) : AIAssistant {
     // override var model = "gemini-1.0-ultra" // NOK - Most capable model (if available)
     // override var model = "gemini-1.5-flash" // OK - Faster, less expensive
     // override var model = "gemini-1.5-pro" // OK - Primary model for most tasks
-     override var model = "gemini-2.0-flash" // OK - Most capable model (if available)
+     override var model = "gemini-2.5-flash" // OK - Most capable model (if available)
     // override var model = "gemini-2.0-pro" // NOK - Most capable model (if available)
     // override var model = "gemini-2.5-flash" // NOK - Most capable model (if available)
     // override var model = "gemini-2.5-flash-preview" // NOK - Most capable model (if available) //override var model = "gemini-2.5-flash-preview-04-17" // NOK - Most capable model (if available)
@@ -45,10 +45,19 @@ class AIAssistantGemini(override val properties: Properties) : AIAssistant {
                     .put("parts", JSONArray().put(JSONObject().put("text", prompt)))
             )
 
+        val requestBodyJson = JSONObject().put("contents", messagesArray)
+
+        val temp = temperature
+        val maxT = maxTokens
+        if (temp != null || maxT != null) {
+            val genConfig = JSONObject()
+            if (temp != null) genConfig.put("temperature", temp)
+            if (maxT != null) genConfig.put("maxOutputTokens", maxT)
+            requestBodyJson.put("generationConfig", genConfig)
+        }
+
         // Build the complete request body with model selection and content
-        val requestBody = JSONObject()
-            .put("contents", messagesArray)
-            .toString()  // Convert to JSON string
+        val requestBody = requestBodyJson.toString()  // Convert to JSON string
 
         // Configure the HTTP request with proper headers and authentication
         val request = Request.Builder()

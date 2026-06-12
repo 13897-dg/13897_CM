@@ -34,8 +34,8 @@ class AIAssistantOpenAIClasses(override val properties: Properties) : AIAssistan
     data class OpenAIRequest(
         val model: String,
         val messages: List<Message>,
-        val temperature: Double = 0.7,    // Controls randomness (0.0 to 2.0)
-        val max_tokens: Int = 800,        // Maximum length of response
+        val temperature: Double? = 0.7,    // Controls randomness (0.0 to 2.0)
+        val max_tokens: Int? = 800,        // Maximum length of response
         val top_p: Double = 1.0,         // Alternative to temperature for nucleus sampling
         val frequency_penalty: Double = 0.0,  // Reduces repetition of token sequences
         val presence_penalty: Double = 0.0    // Reduces repetition of topics
@@ -58,7 +58,12 @@ class AIAssistantOpenAIClasses(override val properties: Properties) : AIAssistan
             Message(role = "system", content = "You are a friendly and helpful assistant."),
             Message(role = "user", content = prompt)
         )
-        val openAIRequest = OpenAIRequest(model = model, messages = messages)
+        val openAIRequest = OpenAIRequest(
+            model = model,
+            messages = messages,
+            temperature = temperature ?: 0.7,
+            max_tokens = maxTokens ?: 800
+        )
 
         // Convert to JSON string using Gson
         val requestBody = gson.toJson(openAIRequest)

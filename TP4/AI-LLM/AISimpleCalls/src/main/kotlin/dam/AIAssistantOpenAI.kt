@@ -55,11 +55,21 @@ class AIAssistantOpenAI(override val properties: Properties) : AIAssistant {
                     .put("content", prompt)
             )
 
-        // Build the complete request body with model selection and messages
-        val requestBody = JSONObject()
+        val requestBodyJson = JSONObject()
             .put("model", model)  // Specify which model to use
             .put("messages", messagesArray)
-            .toString()  // Convert to JSON string
+
+        val temp = temperature
+        if (temp != null) {
+            requestBodyJson.put("temperature", temp)
+        }
+        val maxT = maxTokens
+        if (maxT != null) {
+            requestBodyJson.put("max_tokens", maxT)
+        }
+
+        // Build the complete request body with model selection and messages
+        val requestBody = requestBodyJson.toString()  // Convert to JSON string
 
         // Configure the HTTP request with proper headers and authentication
         val request = Request.Builder()

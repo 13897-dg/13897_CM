@@ -1,6 +1,12 @@
 plugins {
     kotlin("jvm") version "2.1.20"
+    application
 }
+
+application {
+    mainClass.set("dam.MainKt")
+}
+
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
@@ -31,6 +37,7 @@ dependencies {
 tasks.withType<JavaExec> {
     // Suppress SLF4J initialization messages
     systemProperty("org.slf4j.simpleLogger.defaultLogLevel", "off")
+    standardInput = System.`in`
 }
 
 tasks.test {
@@ -38,5 +45,5 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(21)
 }
