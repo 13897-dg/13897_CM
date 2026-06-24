@@ -44,25 +44,27 @@ com.enautica.duel21/
 │
 ├── ui/
 │   ├── login/
-│   │   ├── LoginActivity.kt
+│   │   ├── LoginScreen.kt        (@Composable)
 │   │   └── LoginViewModel.kt
 │   ├── menu/
-│   │   ├── MenuActivity.kt
+│   │   ├── MenuScreen.kt
 │   │   └── MenuViewModel.kt
 │   ├── lobby/
-│   │   ├── LobbyActivity.kt
+│   │   ├── LobbyScreen.kt
 │   │   └── LobbyViewModel.kt
 │   ├── jogo/
-│   │   ├── JogoActivity.kt
+│   │   ├── JogoScreen.kt
 │   │   └── JogoViewModel.kt
 │   ├── perfil/
-│   │   ├── PerfilActivity.kt
+│   │   ├── PerfilScreen.kt
 │   │   └── PerfilViewModel.kt
 │   ├── tutorial/
-│   │   └── TutorialActivity.kt
-│   └── resultados/
-│       ├── ResultadosActivity.kt
-│       └── ResultadosViewModel.kt
+│   │   └── TutorialScreen.kt
+│   ├── resultados/
+│   │   ├── ResultadosScreen.kt
+│   │   └── ResultadosViewModel.kt
+│   └── navigation/
+│       └── NavGraph.kt            (define todas as rotas e o NavHost)
 │
 ├── game/
 │   ├── MotorJogo.kt                  (lógica core: pontuação, vencedor, validações)
@@ -358,61 +360,75 @@ enum class AccaoIA { PEDIR_CARTA, FICAR, JOGAR_ESPECIAL }
 
 ## 6. Navegação entre Ecrãs
 
-Navegação feita com **Intents** e dados passados como *extras*.
+A aplicação usa **Jetpack Compose** — existe uma única `MainActivity`, e cada "ecrã" é uma função `@Composable`. A navegação entre eles é feita com **Navigation Compose** (`NavController` + `NavHost`), e os dados passam como argumentos da rota em vez de `Intent.putExtra`.
 
 ```kotlin
-// Lobby → Jogo (encontrou oponente / sala preenchida)
-val intent = Intent(this, JogoActivity::class.java)
-intent.putExtra("idPartida", partidaId)
-startActivity(intent)
+// ui/navigation/NavGraph.kt
+@Composable
+fun NavGraph(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "login") {
 
-// Jogo → Resultados (partida terminou)
-val intent = Intent(this, ResultadosActivity::class.java)
-intent.putExtra("idPartida", partidaId)
-startActivity(intent)
-finish() // remove o ecrã de Jogo da pilha de navegação
+        composable("login") {
+            LoginScreen(onLoginSuccess = {
+                navController.navigate("menu")
+            })
+        }
+
+        composable("menu") {
+            MenuScreen(
+                onJogarOnline = { navController.navigate("lobby") },
+                onJogarIA = {
+                    val idPartida = criarPartidaLocalIA()
+                    navController.navigate("jogo/$idPartida")
+                },
+                onTutorial = { navController.navigate("tutorial") },
+                onPerfil = { navController.navigate("perfil") }
+            )
+        }
+
+        composable("lobby") {
+            LobbyScreen(onPartidaEncontrada = { idPartida ->
+                navController.navigate("jogo/$idPartida")
+            })
+        }
+
+        composable(
+            "jogo/{idPartida}",
+            arguments = listOf(navArgument("idPartida") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val idPartida = backStackEntry.arguments?.getString("idPartida") ?: ""
+            JogoScreen(idPartida = idPartida, onFimDeJogo = {
+                navController.navigate("resultados/$idPartida") {
+                    popUpTo("jogo/{idPartida}") { inclusive = true } // remove "Jogo" da pilha
+                }
+            })
+        }
+
+        composable(
+            "resultados/{idPartida}",
+            arguments = listOf(navArgument("idPartida") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val idPartida = backStackEntry.arguments?.getString("idPartida") ?: ""
+            ResultadosScreen(
+                idPartida = idPartida,
+                onJogarOutraVez = { navController.navigate("lobby") },
+                onMenuPrincipal = { navController.navigate("menu") }
+            )
+        }
+    }
+}
 ```
 
-O `idUtilizador` não precisa de ser passado entre ecrãs — está disponível globalmente via `FirebaseAuth.getInstance().currentUser?.uid` em qualquer Activity.
+O `idUtilizador` não precisa de passar como argumento de rota — está disponível globalmente via `FirebaseAuth.getInstance().currentUser?.uid` em qualquer Composable.
 
 **Mapa de navegação:**
 
 | Origem | Destino | Dados passados |
 |---|---|---|
-| Login | Menu | `idUtilizador` (sessão) |
-| Menu | Lobby | `idUtilizador` |
+| Login | Menu | — (sessão Firebase Auth) |
+| Menu | Lobby | — |
 | Menu | Jogo (vs IA) | `idPartida` (criada localmente) |
 | Lobby | Jogo | `idPartida` (matchmaking/sala) |
 | Jogo | Resultados | `idPartida` |
 | Resultados | Lobby/Jogo | — (jogar outra vez) |
 | Resultados | Menu | — |
-
----
-
-## 7. Perfis de Utilizador
-
-Ver secção 2 do ACD para a descrição completa das personas (Casual, Competitivo, Social).
-
----
-
-## 8. Diagrama Entidade-Associação Completo
-
-Ver secção 9.1 do ACD — diagrama com atributos disponível em `/docs/concept/entity_diagram_full.png`.
-
----
-
-## 9. Parâmetros de Design Confirmados
-
-Ver secção 10 do ACD:
-- Limite de cartas especiais no inventário — sem limite
-- Timer por ronda — 60 segundos
-- Aposta — +1 a cada ronda
-- "Massacre" — retira 15 segundos ao timer
-
----
-
-## 10. Próximos Passos
-
-- Configuração e teste do Firebase (Authentication + Firestore)
-- Protótipo mínimo de navegação entre ecrãs (dados hardcoded)
-- Implementação individual das 24 cartas especiais em `CartasEspeciaisEfeitos.kt`
