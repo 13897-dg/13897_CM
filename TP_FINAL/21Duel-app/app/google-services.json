@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048547776689",
+    "project_id": "duel-d6961",
+    "storage_bucket": "duel-d6961.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048547776689:android:384a6b73cfe13d11af2a90",
+        "android_client_info": {
+          "package_name": "com.a13897.a21_duel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ4S4uRgsENbWPHzW6OaBBgbzIzB3nazc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

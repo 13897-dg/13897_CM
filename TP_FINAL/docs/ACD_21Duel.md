@@ -65,13 +65,13 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 
 ### 3.3 Sistema de Vidas e Apostas
 - Cada jogador começa com **8 vidas**
-- Cada ronda tem uma **aposta** (começa em 1, aumenta ao longo da partida — frequência por definir)
+- Cada ronda tem uma **aposta** (começa em 1, aumenta +1 a cada ronda)
 - Quem perde a ronda perde vidas igual ao valor da aposta
 - O jogo termina quando um jogador chega a **0 vidas**
 - Empate na partida é impossível — só um jogador pode chegar a 0 vidas
 
 ### 3.4 Timeout e Jogo Online
-- Cada ronda tem um **timer** (duração por definir)
+- Cada ronda tem um **timer de 60 segundos**
 - Se um jogador não jogar dentro do tempo, o jogo dá **stay automático** por ele
 - Após **3 stays automáticos consecutivos**, o jogador perde a partida por abandono
 
@@ -97,7 +97,7 @@ O jogador compete contra outro jogador online ou contra uma IA, tentando aproxim
 | Shhh | Recebe uma carta virada para baixo | Imediato |
 | Carta 2 a 7 | Recebe a carta com o número correspondente (se já em campo, não faz nada) | Imediato |
 | Sorte do dealer | Recebe a melhor carta disponível para o objectivo actual | Imediato |
-| Massacre | Aumenta aposta +1, recebe carta especial extra, retira X segundos ao timer | Passivo |
+| Massacre | Aumenta aposta +1, recebe carta especial extra, retira 15 segundos ao timer | Passivo |
 | Amizade | Ambos os jogadores recebem +2 cartas especiais | Imediato |
 | Escudo | Diminui aposta -1 | Passivo |
 | Escudo+ | Diminui aposta -2 | Passivo |
@@ -222,12 +222,17 @@ Diagrama disponível em `/docs/concept/entity_diagram_full.png`.
 
 ---
 
-## 10. Detalhes por Definir
+## 10. Parâmetros Definidos
 
-- Limite máximo de cartas especiais no inventário por jogador
-- Frequência de aumento da aposta (a cada X rondas?)
-- Timer da ronda — duração total
-- Quantidade de segundos que o "Massacre" retira ao timer
+- Limite de cartas especiais no inventário — **sem limite**
+- Timer por ronda — **60 segundos**
+- Aposta — aumenta **+1 a cada ronda** (ronda 1 = aposta 1, ronda 2 = aposta 2, ...)
+- "Massacre" — retira **15 segundos** ao timer da ronda (fica com 45s)
+
+> Nota: valores sujeitos a ajuste após testes com utilizadores e feedback de jogabilidade.
+
+## 11. Detalhes por Definir
+
 - Multilíngue — português, inglês e uma terceira língua
 - Sistema de ranking/classificação online — tabela global ou só registo V/D?
 - Níveis e XP — esqueleto a definir (implementação futura)
