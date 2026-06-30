@@ -37,11 +37,20 @@ class JogoViewModel(
 
     private var idPartida: String = ""
     private var contraIA: Boolean = false
+    private var idJogador1Real: String = ""
+    private var idJogador2Real: String = ""
+
+    /** Converte "jogador1"/"jogador2" (usado internamente) para o UID real correspondente. */
+    private fun idRealDe(jogador: String): String {
+        return if (jogador == "jogador1") idJogador1Real else idJogador2Real
+    }
 
     /** Chamado pelo Screen ao entrar — prepara a partida (local para IA, observa Firestore se online). */
-    fun iniciar(idPartidaRecebido: String, ehContraIA: Boolean) {
+    fun iniciar(idPartidaRecebido: String, idJogador1: String, idJogador2: String, ehContraIA: Boolean) {
         idPartida = idPartidaRecebido
         contraIA = ehContraIA
+        idJogador1Real = idJogador1
+        idJogador2Real = idJogador2
         iniciarPrimeiraRonda()
 
         if (!contraIA) {
@@ -295,11 +304,12 @@ class JogoViewModel(
 
     private fun terminarJogo(vencedor: String) {
         _fimDeJogo.value = vencedor
+        val idVencedorReal = idRealDe(vencedor)
         viewModelScope.launch {
-            partidaRepository.terminarPartida(idPartida, vencedor)
+            partidaRepository.terminarPartida(idPartida, idVencedorReal)
             val idUtilizador = utilizadorRepository.utilizadorActualId()
             if (idUtilizador != null) {
-                utilizadorRepository.actualizarEstatisticas(idUtilizador, venceu = (vencedor == "jogador1"))
+                utilizadorRepository.actualizarEstatisticas(idUtilizador, venceu = (idVencedorReal == idUtilizador))
             }
         }
     }
