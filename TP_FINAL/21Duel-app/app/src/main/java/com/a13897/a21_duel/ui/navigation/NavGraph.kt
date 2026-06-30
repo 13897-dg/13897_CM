@@ -27,9 +27,8 @@ fun NavGraph(navController: NavHostController) {
         composable("menu") {
             MenuScreen(
                 onJogarOnline = { navController.navigate("lobby") },
-                onJogarIA = {
-                    // protótipo: id fixo só para testar o fluxo "vs IA" sem passar pelo Lobby
-                    navController.navigate("jogo/ia-local")
+                onJogarIA = { idPartida, _, _ ->
+                    navController.navigate("jogo/$idPartida")
                 },
                 onTutorial = { navController.navigate("tutorial") },
                 onPerfil = { navController.navigate("perfil") }
