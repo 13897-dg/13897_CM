@@ -20,15 +20,17 @@ fun NavGraph(navController: NavHostController) {
 
         composable("login") {
             LoginScreen(onLoginSuccess = {
-                navController.navigate("menu")
+                navController.navigate("menu") {
+                    popUpTo("login") { inclusive = true }
+                }
             })
         }
 
         composable("menu") {
             MenuScreen(
                 onJogarOnline = { navController.navigate("lobby") },
-                onJogarIA = { idPartida, _, _ ->
-                    navController.navigate("jogo/$idPartida")
+                onJogarIA = { idPartida, idJogador1, idJogador2 ->
+                    navController.navigate("jogo/$idPartida/$idJogador1/$idJogador2/true")
                 },
                 onTutorial = { navController.navigate("tutorial") },
                 onPerfil = { navController.navigate("perfil") }
@@ -37,20 +39,37 @@ fun NavGraph(navController: NavHostController) {
 
         composable("lobby") {
             LobbyScreen(onPartidaEncontrada = { idPartida ->
-                navController.navigate("jogo/$idPartida")
+                // nota: no lobby os jogadores reais vêm do Firebase (Partida.idJogador1/2)
+                // por agora passa placeholders — o JogoViewModel lê os UIDs reais do Firestore
+                navController.navigate("jogo/$idPartida/online/online/false")
             })
         }
 
         composable(
-            "jogo/{idPartida}",
-            arguments = listOf(navArgument("idPartida") { type = NavType.StringType })
+            "jogo/{idPartida}/{idJogador1}/{idJogador2}/{contraIA}",
+            arguments = listOf(
+                navArgument("idPartida") { type = NavType.StringType },
+                navArgument("idJogador1") { type = NavType.StringType },
+                navArgument("idJogador2") { type = NavType.StringType },
+                navArgument("contraIA") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val idPartida = backStackEntry.arguments?.getString("idPartida") ?: ""
-            JogoScreen(idPartida = idPartida, onFimDeJogo = {
-                navController.navigate("resultados/$idPartida") {
-                    popUpTo("jogo/{idPartida}") { inclusive = true }
+            val idJogador1 = backStackEntry.arguments?.getString("idJogador1") ?: ""
+            val idJogador2 = backStackEntry.arguments?.getString("idJogador2") ?: ""
+            val contraIA = backStackEntry.arguments?.getString("contraIA") == "true"
+
+            JogoScreen(
+                idPartida = idPartida,
+                idJogador1 = idJogador1,
+                idJogador2 = idJogador2,
+                ehContraIA = contraIA,
+                onFimDeJogo = {
+                    navController.navigate("resultados/$idPartida") {
+                        popUpTo("jogo/{idPartida}/{idJogador1}/{idJogador2}/{contraIA}") { inclusive = true }
+                    }
                 }
-            })
+            )
         }
 
         composable(
