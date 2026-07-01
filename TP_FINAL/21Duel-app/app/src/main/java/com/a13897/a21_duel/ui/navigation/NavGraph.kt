@@ -6,12 +6,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.a13897.a21_duel.ui.definicoes.DefinicoesScreen
 import com.a13897.a21_duel.ui.jogo.JogoScreen
 import com.a13897.a21_duel.ui.lobby.LobbyScreen
 import com.a13897.a21_duel.ui.login.LoginScreen
 import com.a13897.a21_duel.ui.menu.MenuScreen
 import com.a13897.a21_duel.ui.perfil.PerfilScreen
 import com.a13897.a21_duel.ui.resultados.ResultadosScreen
+import com.a13897.a21_duel.ui.sobre.SobreScreen
 import com.a13897.a21_duel.ui.tutorial.TutorialScreen
 
 @Composable
@@ -33,14 +35,13 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate("jogo/$idPartida/$idJogador1/$idJogador2/true")
                 },
                 onTutorial = { navController.navigate("tutorial") },
-                onPerfil = { navController.navigate("perfil") }
+                onPerfil = { navController.navigate("perfil") },
+                onDefinicoes = { navController.navigate("definicoes") }
             )
         }
 
         composable("lobby") {
             LobbyScreen(onPartidaEncontrada = { idPartida ->
-                // nota: no lobby os jogadores reais vêm do Firebase (Partida.idJogador1/2)
-                // por agora passa placeholders — o JogoViewModel lê os UIDs reais do Firestore
                 navController.navigate("jogo/$idPartida/online/online/false")
             })
         }
@@ -94,6 +95,22 @@ fun NavGraph(navController: NavHostController) {
 
         composable("tutorial") {
             TutorialScreen(onVoltar = { navController.popBackStack() })
+        }
+
+        composable("definicoes") {
+            DefinicoesScreen(
+                onVoltar = { navController.popBackStack() },
+                onSobre = { navController.navigate("sobre") },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("sobre") {
+            SobreScreen(onVoltar = { navController.popBackStack() })
         }
     }
 }
