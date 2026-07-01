@@ -49,6 +49,27 @@ class PartidaRepository(
         awaitClose { listener.remove() }
     }
 
+    // Adiciona esta nova função ao teu PartidaRepository.kt
+    suspend fun atualizarEstadoJogo(
+        idPartida: String,
+        jsonRonda: String,
+        inv1: List<String>,
+        inv2: List<String>
+    ): Result<Unit> {
+        return try {
+            colecaoPartidas.document(idPartida).update(
+                mapOf(
+                    "estadoRondaJson" to jsonRonda,
+                    "inventarioJogador1" to inv1,
+                    "inventarioJogador2" to inv2
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (erro: Exception) {
+            Result.failure(erro)
+        }
+    }
+
     /** Observa a Ronda actual de uma partida em tempo real. */
     fun observarRondaActual(idPartida: String, idRonda: String): Flow<Ronda?> = callbackFlow {
         val listener = colecaoPartidas.document(idPartida)

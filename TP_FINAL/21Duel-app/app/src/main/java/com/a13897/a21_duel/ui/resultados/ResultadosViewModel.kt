@@ -18,18 +18,19 @@ class ResultadosViewModel(
     private val _partida = MutableStateFlow<Partida?>(null)
     val partida: StateFlow<Partida?> = _partida
 
-    /** true se o utilizador actual foi o vencedor da partida. */
-    val venceu: Boolean
-        get() {
-            val p = _partida.value ?: return false
-            val meuId = utilizadorRepository.utilizadorActualId()
-            return p.vencedor == meuId
-        }
+    private val _venceu = MutableStateFlow<Boolean>(false) // Agora é um estado reativo
+    val venceu: StateFlow<Boolean> = _venceu
+
 
     fun carregarResultado(idPartida: String) {
         viewModelScope.launch {
             partidaRepository.observarPartida(idPartida).collect { partidaActualizada ->
                 _partida.value = partidaActualizada
+                // Atualiza o booleano assim que recebermos dados
+                if (partidaActualizada != null) {
+                    val meuId = utilizadorRepository.utilizadorActualId()
+                    _venceu.value = (partidaActualizada.vencedor == meuId)
+                }
             }
         }
     }

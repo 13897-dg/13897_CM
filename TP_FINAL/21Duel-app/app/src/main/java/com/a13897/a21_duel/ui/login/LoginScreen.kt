@@ -1,10 +1,13 @@
 package com.a13897.a21_duel.ui.login
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,8 +33,8 @@ fun LoginScreen(
         estado = estado,
         modoRegisto = modoRegisto,
         onModoRegistoChange = { modoRegisto = it },
-        onLogin = { email, password -> viewModel.login(email, password) },
-        onRegistar = { email, password, username -> viewModel.registar(email, password, username) }
+        onLogin = { email, password -> viewModel.login(email.trim(), password.trim()) },
+        onRegistar = { email, password, username -> viewModel.registar(email.trim(), password.trim(), username.trim()) }
     )
 }
 
@@ -59,6 +62,11 @@ fun LoginScreenContent(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
+            singleLine = true, // Impede o Enter de criar novas linhas
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next // Mostra o botão "Seguinte" no teclado
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -68,6 +76,11 @@ fun LoginScreenContent(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Nome de utilizador") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -77,7 +90,12 @@ fun LoginScreenContent(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
+            singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done // Mostra o botão "Concluído" no teclado
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))

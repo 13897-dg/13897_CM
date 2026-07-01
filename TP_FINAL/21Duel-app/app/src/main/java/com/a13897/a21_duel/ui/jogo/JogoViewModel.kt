@@ -8,11 +8,20 @@ import com.a13897.a21_duel.game.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 /** Identificador fixo usado como idJogador2 quando a partida é contra a IA. */
 const val ID_JOGADOR_IA = "IA"
 
 class JogoViewModel(
+    private val _meuJogadorInterno: MutableStateFlow<String> = MutableStateFlow("jogador1"),
+    val meuJogadorInterno: StateFlow<String> = _meuJogadorInterno,
+    private val _mensagemAcaoOponente: MutableStateFlow<String?> = MutableStateFlow<String?>(null),
+    val mensagemAcaoOponente: StateFlow<String?> = _mensagemAcaoOponente,
+    private val _mensagemFimRonda: MutableStateFlow<String?> = MutableStateFlow<String?>(null),
+    val mensagemFimRonda: StateFlow<String?> = _mensagemFimRonda,
+    private var timerJob: Job? = null,
     private val partidaRepository: PartidaRepository = PartidaRepository(),
     private val utilizadorRepository: UtilizadorRepository = UtilizadorRepository()
 ) : ViewModel() {
@@ -47,43 +56,81 @@ class JogoViewModel(
 
     /** Chamado pelo Screen ao entrar — prepara a partida (local para IA, observa Firestore se online). */
     fun iniciar(idPartidaRecebido: String, idJogador1: String, idJogador2: String, ehContraIA: Boolean) {
-        idPartida = idPartidaRecebido
-        contraIA = ehContraIA
+        viewModelScope.launch {
+            // 1. Garantir que temos um documento no Firestore (resolve o ecrã de resultados infinito)
+            if (idPartidaRecebido.isEmpty()) {
+                val resultado = partidaRepository.criarPartida(idJogador1, idJogador2)
+                resultado.onSuccess { novoId ->
+                    idPartida = novoId
+                }
+            } else {
+                idPartida = idPartidaRecebido
+            }
 
-        if (!ehContraIA && idJogador1 == "online") {
-            // modo online — lê os UIDs reais do Firestore a partir do idPartida
-            viewModelScope.launch {
+            contraIA = ehContraIA
+
+            // 2. Configurar a partida com base no modo de jogo
+            if (!ehContraIA && idJogador1 == "online") {
+                // --- MODO MULTIPLAYER ONLINE ---
                 partidaRepository.observarPartida(idPartida).collect { partida ->
                     if (partida != null && idJogador1Real.isEmpty()) {
                         idJogador1Real = partida.idJogador1
                         idJogador2Real = partida.idJogador2
-                        iniciarPrimeiraRonda()
+
+                        // Descobrir em que cadeira me sento (para a UI e permissões)
+                        val meuUid = utilizadorRepository.utilizadorActualId()
+                        _meuJogadorInterno.value = if (meuUid == partida.idJogador1) "jogador1" else "jogador2"
+
+                        // APENAS O HOST (Jogador 1) gera o baralho inicial e distribui as cartas
+                        if (_meuJogadorInterno.value == "jogador1") {
+                            iniciarPrimeiraRonda()
+                        }
+
                         observarPartidaOnline()
                     }
                 }
+            } else {
+                // --- MODO CONTRA A IA ---
+                idJogador1Real = idJogador1
+                idJogador2Real = idJogador2
+                _meuJogadorInterno.value = "jogador1" // Contra a IA és sempre o jogador 1
+
+                iniciarPrimeiraRonda() // Como estás sozinho, inicias tu a ronda
             }
-        } else {
-            // vs IA — UIDs já vêm correctos pela rota
-            idJogador1Real = idJogador1
-            idJogador2Real = idJogador2
-            iniciarPrimeiraRonda()
-            if (!ehContraIA) observarPartidaOnline()
         }
     }
 
-    private fun iniciarPrimeiraRonda() {
+    private fun iniciarPrimeiraRonda(numeroRonda: Int = 1, aposta: Int = 1) {
         val baralhoInicial = (1..11).toList()
-        // cada jogador começa com 2 cartas: uma visível, uma oculta (ACD secção 3.1)
         val (mao1, baralhoApos1) = distribuirMaoInicial(baralhoInicial)
         val (mao2, baralhoApos2) = distribuirMaoInicial(baralhoApos1)
 
         _estadoRonda.value = EstadoRonda(
-            numero = 1,
-            aposta = 1,
+            numero = numeroRonda,
+            aposta = aposta,
             maoJogador1 = mao1,
             maoJogador2 = mao2,
-            cartasDisponiveis = baralhoApos2
+            cartasDisponiveis = baralhoApos2,
+            turnoAtual = "jogador1",
+            tempoRestanteSegundos = MotorJogo.TIMER_RONDA_SEGUNDOS
         )
+        iniciarTimer()
+    }
+
+    private fun iniciarTimer() {
+        timerJob?.cancel() // Cancela o timer anterior se existir
+        timerJob = viewModelScope.launch {
+            while (_estadoRonda.value.tempoRestanteSegundos > 0 && !_estadoRonda.value.rondaTerminou()) {
+                delay(1000L)
+                val estado = _estadoRonda.value
+                _estadoRonda.value = estado.copy(tempoRestanteSegundos = estado.tempoRestanteSegundos - 1)
+
+                // Se o tempo chegar a 0, dá stay automático
+                if (_estadoRonda.value.tempoRestanteSegundos <= 0) {
+                    ficar(_estadoRonda.value.turnoAtual)
+                }
+            }
+        }
     }
 
     private fun distribuirMaoInicial(baralho: List<Int>): Pair<List<CartaMao>, List<Int>> {
@@ -115,17 +162,22 @@ class JogoViewModel(
     // Acções do jogador
     // -----------------------------------------------------------------------
 
-    /** O jogador pede carta — escolhe uma aleatória do baralho disponível e remove-a. */
+    /** O jogador pede carta... */
     fun pedirCarta(jogador: String) {
         val estado = _estadoRonda.value
-        if (!MotorJogo.baralhoTemCartas(estado.cartasDisponiveis)) return // baralho vazio, não pode pedir
+        if (!MotorJogo.baralhoTemCartas(estado.cartasDisponiveis)) return
 
         val carta = estado.cartasDisponiveis.random()
         val novoBaralho = MotorJogo.removerCartaDoBaralho(estado.cartasDisponiveis, carta)
         val novaCarta = CartaMao(valor = carta, visivel = true)
 
-        val novoEstado = adicionarCartaAMao(estado, jogador, novaCarta).copy(cartasDisponiveis = novoBaralho)
-        _estadoRonda.value = novoEstado
+        // CORREÇÃO: Qualquer jogada limpa os stays anteriores de ambos!
+        val estadoAposCarta = adicionarCartaAMao(estado, jogador, novaCarta).copy(
+            cartasDisponiveis = novoBaralho,
+            stayJogador1 = false,
+            stayJogador2 = false
+        )
+        _estadoRonda.value = estadoAposCarta
 
         depoisDaJogada(jogador)
     }
@@ -139,8 +191,12 @@ class JogoViewModel(
             estado.copy(stayJogador2 = true)
         }
 
-        verificarFimDaRonda()
-        depoisDaJogada(jogador)
+        // CORREÇÃO: Se ambos deram stay, a ronda termina. Senão, só passa o turno.
+        if (_estadoRonda.value.rondaTerminou()) {
+            verificarFimDaRonda()
+        } else {
+            depoisDaJogada(jogador)
+        }
     }
 
     /**
@@ -158,10 +214,13 @@ class JogoViewModel(
             estado = estado.copy(cartasEspeciaisEmCampo = estado.cartasEspeciaisEmCampo + nomeCarta)
         }
 
+        // CORREÇÃO: Jogar uma carta especial também limpa os stays
+        estado = estado.copy(stayJogador1 = false, stayJogador2 = false)
+
         _estadoRonda.value = estado
         removerCartaDoInventario(jogador, nomeCarta)
 
-        // efeitos que afectam o inventário (fora do EstadoRonda) tratados aqui:
+        // (Lógica de inventário mantida igual)
         when (nomeCarta) {
             "Massacre" -> adicionarCartaAoInventario(jogador, RegistoCartasEspeciais.todas.random().nome)
             "Amizade" -> {
@@ -174,7 +233,6 @@ class JogoViewModel(
         }
 
         recalcularApostaEObjectivoApartirDoCampo()
-        depoisDaJogada(jogador)
     }
 
     /**
@@ -184,7 +242,7 @@ class JogoViewModel(
      */
     private fun recalcularApostaEObjectivoApartirDoCampo() {
         val estado = _estadoRonda.value
-        var apostaBase = 1 // valor inicial da ronda antes de cartas especiais
+        var apostaBase = estado.numero // valor inicial da ronda antes de cartas especiais
         var ajusteObjectivo = 0
         var cartaAteXActiva: String? = null
         var objectivoBase = MotorJogo.OBJECTIVO_PADRAO
@@ -230,24 +288,48 @@ class JogoViewModel(
 
     /** Depois de cada jogada, se for vs IA e for a vez da IA, dispara a acção dela. */
     private fun depoisDaJogada(quemAcabouDeJogar: String) {
-        if (contraIA && quemAcabouDeJogar == "jogador1" && !_estadoRonda.value.rondaTerminou()) {
-            jogadaDaIA()
+        val proximo = if (quemAcabouDeJogar == "jogador1") "jogador2" else "jogador1"
+
+        // Limpa a mensagem do oponente quando a vez volta para ti
+        if (proximo == "jogador1") _mensagemAcaoOponente.value = null
+
+        _estadoRonda.value = _estadoRonda.value.copy(
+            turnoAtual = proximo,
+            tempoRestanteSegundos = MotorJogo.TIMER_RONDA_SEGUNDOS
+        )
+        iniciarTimer()
+
+        if (contraIA && proximo == "jogador2" && !_estadoRonda.value.rondaTerminou()) {
+            viewModelScope.launch {
+                _mensagemAcaoOponente.value = "A pensar..."
+                delay(2500) // MAIS TEMPO: Espera 2.5s antes da IA decidir o que fazer
+                jogadaDaIA()
+            }
         }
     }
 
-    private fun jogadaDaIA() {
+    private suspend fun jogadaDaIA() {
         val estado = _estadoRonda.value
         val pontuacaoIA = estado.pontuacaoJogador2()
 
-        // 1 carta especial aleatória do inventário da IA por ronda, se houver (ACD secção 4.1)
         val cartaEspecialIA = IAJogador.escolherCartaEspecial(_inventarioJogador2.value)
         if (cartaEspecialIA != null) {
+            _mensagemAcaoOponente.value = "Usou carta: $cartaEspecialIA"
+            delay(2000) // MAIS TEMPO: Dá 2s para veres que carta ele usou
             jogarCartaEspecial("jogador2", cartaEspecialIA)
         }
 
         when (IAJogador.decidirAccao(pontuacaoIA, _estadoRonda.value.objectivoActual)) {
-            AccaoIA.PEDIR_CARTA -> pedirCarta("jogador2")
-            AccaoIA.FICAR -> ficar("jogador2")
+            AccaoIA.PEDIR_CARTA -> {
+                _mensagemAcaoOponente.value = "Pediu carta."
+                delay(2000)
+                pedirCarta("jogador2")
+            }
+            AccaoIA.FICAR -> {
+                _mensagemAcaoOponente.value = "Parou (Stay)."
+                delay(2000)
+                ficar("jogador2")
+            }
         }
     }
 
@@ -259,14 +341,33 @@ class JogoViewModel(
         val estado = _estadoRonda.value
         if (!estado.rondaTerminou()) return
 
+        // Pára o timer enquanto a ronda está em pausa a mostrar os resultados
+        timerJob?.cancel()
+
         val resultado = MotorJogo.decidirVencedorRonda(
             estado.pontuacaoJogador1(), estado.pontuacaoJogador2(), estado.objectivoActual
         )
 
-        when (resultado) {
-            is ResultadoRonda.VenceJogador1 -> aplicarResultadoRonda(perdedor = "jogador2")
-            is ResultadoRonda.VenceJogador2 -> aplicarResultadoRonda(perdedor = "jogador1")
-            is ResultadoRonda.Empate -> proximaRonda() // ninguém perde vidas, mas aposta sobe na mesma
+        val (mensagem, perdedor) = when (resultado) {
+            is ResultadoRonda.VenceJogador1 -> "Ganhaste a ronda!" to "jogador2"
+            is ResultadoRonda.VenceJogador2 -> "O oponente ganhou a ronda." to "jogador1"
+            is ResultadoRonda.Empate -> "Empate! Ninguém perde vidas." to null
+        }
+
+        // Mostra a mensagem no ecrã
+        _mensagemFimRonda.value = mensagem
+
+        // Lança uma coroutine para fazer a pausa sem bloquear a app
+        viewModelScope.launch {
+            delay(3000) // Espera 3 segundos (como previsto no ADD)
+
+            _mensagemFimRonda.value = null // Limpa a mensagem
+
+            if (perdedor != null) {
+                aplicarResultadoRonda(perdedor)
+            } else {
+                proximaRonda()
+            }
         }
     }
 
@@ -306,13 +407,19 @@ class JogoViewModel(
 
     private fun proximaRonda() {
         val estadoAnterior = _estadoRonda.value
+        val proximoNumero = estadoAnterior.numero + 1
         val novaAposta = MotorJogo.calcularProximaAposta(estadoAnterior.aposta)
-        // nova ronda: campo de especiais reset, inventário mantém-se (ACD secção 3.5)
-        iniciarPrimeiraRonda()
-        _estadoRonda.value = _estadoRonda.value.copy(
-            numero = estadoAnterior.numero + 1,
-            aposta = novaAposta
-        )
+
+        // Distribui Cartas Especiais (Regra do ACD: alternar 1 e 2 cartas por ronda a partir da ronda 2)
+        if (proximoNumero >= 2) {
+            val numCartas = if (proximoNumero % 2 == 0) 1 else 2
+            for (i in 1..numCartas) {
+                adicionarCartaAoInventario("jogador1", RegistoCartasEspeciais.todas.random().nome)
+                adicionarCartaAoInventario("jogador2", RegistoCartasEspeciais.todas.random().nome)
+            }
+        }
+
+        iniciarPrimeiraRonda(numeroRonda = proximoNumero, aposta = novaAposta)
     }
 
     private fun terminarJogo(vencedor: String) {

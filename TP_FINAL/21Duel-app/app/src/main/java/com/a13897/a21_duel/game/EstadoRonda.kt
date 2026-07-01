@@ -18,6 +18,7 @@ data class EstadoRonda(
     val cartasDisponiveis: List<Int> = (1..11).toList(),
     val stayJogador1: Boolean = false,
     val stayJogador2: Boolean = false,
+    val turnoAtual: String = "jogador1",
     val tempoRestanteSegundos: Int = MotorJogo.TIMER_RONDA_SEGUNDOS
 ) {
     /** Objectivo efectivo desta ronda, já considerando "até X" e os ajustes "mais um"/"menos um". */

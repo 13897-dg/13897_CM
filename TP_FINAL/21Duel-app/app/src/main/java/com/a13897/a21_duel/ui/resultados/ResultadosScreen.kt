@@ -19,6 +19,7 @@ fun ResultadosScreen(
     viewModel: ResultadosViewModel = viewModel()
 ) {
     val partida by viewModel.partida.collectAsState()
+    val venceu by viewModel.venceu.collectAsState()
 
     LaunchedEffect(idPartida) {
         viewModel.carregarResultado(idPartida)
@@ -26,7 +27,7 @@ fun ResultadosScreen(
 
     ResultadosScreenContent(
         partida = partida,
-        venceu = viewModel.venceu,
+        venceu = venceu,
         onJogarOutraVez = onJogarOutraVez,
         onMenuPrincipal = onMenuPrincipal
     )

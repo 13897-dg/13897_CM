@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,11 +25,18 @@ fun JogoScreen(
     onFimDeJogo: () -> Unit,
     viewModel: JogoViewModel = viewModel()
 ) {
+    val mensagemAcaoOponente by viewModel.mensagemAcaoOponente.collectAsState()
     val estadoRonda by viewModel.estadoRonda.collectAsState()
     val vidasJogador1 by viewModel.vidasJogador1.collectAsState()
     val vidasJogador2 by viewModel.vidasJogador2.collectAsState()
-    val inventario by viewModel.inventarioJogador1.collectAsState()
     val fimDeJogo by viewModel.fimDeJogo.collectAsState()
+    val meuJogadorInterno by viewModel.meuJogadorInterno.collectAsState()
+    val mensagemFimRonda by viewModel.mensagemFimRonda.collectAsState()
+
+    // Agora recolhemos ambos os inventários para podermos escolher o correto
+    val inventarioJogador1 by viewModel.inventarioJogador1.collectAsState()
+    val inventarioJogador2 by viewModel.inventarioJogador2.collectAsState()
+    val inventarioMeu = if (meuJogadorInterno == "jogador1") inventarioJogador1 else inventarioJogador2
 
     LaunchedEffect(idPartida) {
         viewModel.iniciar(idPartida, idJogador1, idJogador2, ehContraIA)
@@ -42,10 +50,13 @@ fun JogoScreen(
         estadoRonda = estadoRonda,
         vidasJogador1 = vidasJogador1,
         vidasJogador2 = vidasJogador2,
-        inventario = inventario,
-        onPedirCarta = { viewModel.pedirCarta("jogador1") },
-        onFicar = { viewModel.ficar("jogador1") },
-        onJogarCartaEspecial = { nome -> viewModel.jogarCartaEspecial("jogador1", nome) }
+        inventario = inventarioMeu,
+        mensagemAcaoOponente = mensagemAcaoOponente,
+        mensagemFimRonda = mensagemFimRonda,
+        meuJogadorInterno = meuJogadorInterno,
+        onPedirCarta = { viewModel.pedirCarta(meuJogadorInterno) },
+        onFicar = { viewModel.ficar(meuJogadorInterno) },
+        onJogarCartaEspecial = { nome -> viewModel.jogarCartaEspecial(meuJogadorInterno, nome) }
     )
 }
 
@@ -55,39 +66,108 @@ fun JogoScreenContent(
     vidasJogador1: Int,
     vidasJogador2: Int,
     inventario: List<String>,
+    mensagemFimRonda: String?,
+    mensagemAcaoOponente: String?,
     onPedirCarta: () -> Unit,
     onFicar: () -> Unit,
-    onJogarCartaEspecial: (String) -> Unit
+    onJogarCartaEspecial: (String) -> Unit,
+    meuJogadorInterno: String
 ) {
+    // 1. Determina as identidades e perspetivas dinamicamente
+    val oponenteInterno = if (meuJogadorInterno == "jogador1") "jogador2" else "jogador1"
+
+    val vidasMinhas = if (meuJogadorInterno == "jogador1") vidasJogador1 else vidasJogador2
+    val vidasOponente = if (oponenteInterno == "jogador1") vidasJogador1 else vidasJogador2
+
+    val maoMinha = if (meuJogadorInterno == "jogador1") estadoRonda.maoJogador1 else estadoRonda.maoJogador2
+    val maoOponente = if (oponenteInterno == "jogador1") estadoRonda.maoJogador1 else estadoRonda.maoJogador2
+
+    val pontuacaoMinha = if (meuJogadorInterno == "jogador1") estadoRonda.pontuacaoJogador1() else estadoRonda.pontuacaoJogador2()
+    val pontuacaoOponente = if (oponenteInterno == "jogador1") estadoRonda.pontuacaoJogador1() else estadoRonda.pontuacaoJogador2()
+
+    val meuStay = if (meuJogadorInterno == "jogador1") estadoRonda.stayJogador1 else estadoRonda.stayJogador2
+
+    // 2. Determina se é o teu turno
+    val eOmeuTurno = estadoRonda.turnoAtual == meuJogadorInterno && !meuStay && mensagemFimRonda == null
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // --- Topo: oponente ---
-        JogadorInfo(nome = "Oponente", vidas = vidasJogador2)
-        Spacer(modifier = Modifier.height(8.dp))
-        MaoDoJogador(mao = estadoRonda.maoJogador2, mostrarOcultas = false)
-        Text(text = "[ ?? ]", style = MaterialTheme.typography.headlineSmall)
-
-        Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider()
-
-        // --- Centro: cartas especiais em jogo + aposta/objectivo ---
-        Text("Cartas em campo: ${estadoRonda.cartasEspeciaisEmCampo.joinToString()}")
-        Text("Aposta: ${estadoRonda.aposta}  |  Objectivo: ${estadoRonda.objectivoActual}")
-        Text("Timer: ${estadoRonda.tempoRestanteSegundos}s  |  Ronda: ${estadoRonda.numero}")
-
-        HorizontalDivider()
+        // --- Topo: Oponente ---
+        Spacer(modifier = Modifier.height(16.dp))
+        JogadorInfo(nome = "Oponente", vidas = vidasOponente)
         Spacer(modifier = Modifier.height(8.dp))
 
-        // --- Baixo: jogador local ---
-        MaoDoJogador(mao = estadoRonda.maoJogador1, mostrarOcultas = true)
+        // Mostra a ação do oponente em texto
+        if (mensagemAcaoOponente != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = mensagemAcaoOponente,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+
+        // Se a ronda terminou, revela as cartas do oponente
+        MaoDoJogador(mao = maoOponente, mostrarOcultas = estadoRonda.rondaTerminou())
+
+        // Se a ronda terminou, mostra os pontos dele em vez de "??"
         Text(
-            text = "Pontuação: ${estadoRonda.pontuacaoJogador1()}",
+            text = "Pontuação: ${if (estadoRonda.rondaTerminou()) pontuacaoOponente else "??"}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // --- Centro: cartas especiais em jogo + aposta/objectivo + Mensagem Final ---
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (mensagemFimRonda != null) {
+                    // Mostra o vencedor da ronda em grande destaque
+                    Text(
+                        text = mensagemFimRonda,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    // Informação normal da ronda
+                    Text(
+                        text = if (eOmeuTurno) "O TEU TURNO" else "TURNO DO OPONENTE",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (eOmeuTurno) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text("Timer: ${estadoRonda.tempoRestanteSegundos}s", style = MaterialTheme.typography.titleMedium)
+                    Text("Ronda: ${estadoRonda.numero}")
+                    Text("Aposta: ${estadoRonda.aposta}  |  Objectivo: ${estadoRonda.objectivoActual}")
+
+                    if (estadoRonda.cartasEspeciaisEmCampo.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Em campo: ${estadoRonda.cartasEspeciaisEmCampo.joinToString()}")
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // --- Baixo: Tu (Jogador Local) ---
+        Text(
+            text = "Pontuação: $pontuacaoMinha",
             style = MaterialTheme.typography.headlineSmall
         )
+        MaoDoJogador(mao = maoMinha, mostrarOcultas = true)
         Spacer(modifier = Modifier.height(8.dp))
-        JogadorInfo(nome = "Tu", vidas = vidasJogador1)
+        JogadorInfo(nome = "Tu", vidas = vidasMinhas)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -95,12 +175,12 @@ fun JogoScreenContent(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
                 onClick = onPedirCarta,
-                enabled = !estadoRonda.stayJogador1
+                enabled = eOmeuTurno && estadoRonda.cartasDisponiveis.isNotEmpty()
             ) { Text("Pedir carta") }
 
             Button(
                 onClick = onFicar,
-                enabled = !estadoRonda.stayJogador1
+                enabled = eOmeuTurno
             ) { Text("Parar") }
         }
 
@@ -108,8 +188,10 @@ fun JogoScreenContent(
 
         // --- Inventário de cartas especiais ---
         Text("Inventário:", style = MaterialTheme.typography.titleSmall)
+        Spacer(modifier = Modifier.height(4.dp))
         InventarioCartas(
             inventario = inventario,
+            podeJogar = eOmeuTurno,
             onJogar = onJogarCartaEspecial
         )
     }
@@ -127,7 +209,17 @@ fun JogadorInfo(nome: String, vidas: Int) {
 fun MaoDoJogador(mao: List<CartaMao>, mostrarOcultas: Boolean) {
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         mao.forEach { carta ->
-            Card(modifier = Modifier.size(48.dp, 64.dp)) {
+            val eCartaOcultaParaOponente = mostrarOcultas && !carta.visivel
+
+            Card(
+                modifier = Modifier.size(48.dp, 64.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (eCartaOcultaParaOponente)
+                        MaterialTheme.colorScheme.tertiaryContainer // Cor de destaque para cartas ocultas
+                    else
+                        MaterialTheme.colorScheme.secondaryContainer // Cor normal
+                )
+            ){
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Text(
                         text = if (mostrarOcultas || carta.visivel) carta.valor.toString() else "?",
@@ -141,7 +233,7 @@ fun MaoDoJogador(mao: List<CartaMao>, mostrarOcultas: Boolean) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun InventarioCartas(inventario: List<String>, onJogar: (String) -> Unit) {
+fun InventarioCartas(inventario: List<String>, podeJogar: Boolean, onJogar: (String) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         inventario.forEach { nomeCarta ->
             var mostrarTooltip by remember { mutableStateOf(false) }
@@ -150,7 +242,7 @@ fun InventarioCartas(inventario: List<String>, onJogar: (String) -> Unit) {
                 AlertDialog(
                     onDismissRequest = { mostrarTooltip = false },
                     title = { Text(nomeCarta) },
-                    text = { Text(RegistoCartasEspeciais.descricoes[nomeCarta] ?: "") },
+                    text = { Text(RegistoCartasEspeciais.descricoes[nomeCarta] ?: "Sem descrição.") },
                     confirmButton = {
                         TextButton(onClick = { mostrarTooltip = false }) { Text("Fechar") }
                     }
@@ -161,9 +253,12 @@ fun InventarioCartas(inventario: List<String>, onJogar: (String) -> Unit) {
                 modifier = Modifier
                     .size(56.dp, 72.dp)
                     .combinedClickable(
-                        onClick = { onJogar(nomeCarta) },
+                        onClick = { if (podeJogar) onJogar(nomeCarta) },
                         onLongClick = { mostrarTooltip = true }
-                    )
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (podeJogar) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -186,17 +281,21 @@ fun JogoScreenPreview() {
                 numero = 1,
                 aposta = 2,
                 objectivoBase = 21,
-                maoJogador1 = listOf(CartaMao(10, true), CartaMao(7, true)),
+                maoJogador1 = listOf(CartaMao(10, true), CartaMao(7, false)),
                 maoJogador2 = listOf(CartaMao(5, true), CartaMao(2, false)),
                 cartasEspeciaisEmCampo = listOf("Escudo"),
-                tempoRestanteSegundos = 25
+                tempoRestanteSegundos = 25,
+                turnoAtual = "jogador1"
             ),
             vidasJogador1 = 3,
             vidasJogador2 = 3,
             inventario = listOf("Mais1", "Menos1", "Escudo"),
+            mensagemFimRonda = null,
+            mensagemAcaoOponente = null,
             onPedirCarta = {},
             onFicar = {},
-            onJogarCartaEspecial = {}
+            onJogarCartaEspecial = {},
+            meuJogadorInterno = "jogador1"
         )
     }
 }
