@@ -1,0 +1,125 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">21 Duel</string>
+
+    <!-- Login -->
+    <string name="login_titulo">21 Duel</string>
+    <string name="login_email">Correo electrónico</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_username">Nombre de usuario</string>
+    <string name="login_botao">Iniciar sesión</string>
+    <string name="login_criar_conta">Crear cuenta</string>
+    <string name="login_ja_tenho_conta">Ya tengo cuenta</string>
+    <string name="login_erro_campos">Por favor, rellena todos los campos.</string>
+    <string name="login_erro_email_password">Por favor, rellena el correo y la contraseña.</string>
+    <string name="login_erro_generico">Error al iniciar sesión.</string>
+    <string name="login_erro_registo">Error al crear la cuenta.</string>
+
+    <!-- Menu -->
+    <string name="menu_jogar_online">Jugar Online</string>
+    <string name="menu_vs_ia">vs IA</string>
+    <string name="menu_tutorial">Tutorial</string>
+    <string name="menu_perfil_loja">Perfil / Tienda</string>
+    <string name="menu_ola">Hola, %1$s</string>
+    <string name="menu_stats">Victorias: %1$d  |  Derrotas: %2$d</string>
+
+    <!-- Lobby -->
+    <string name="lobby_titulo">Lobby</string>
+    <string name="lobby_procurar">Buscar partida online</string>
+    <string name="lobby_a_procurar">Buscando adversario…</string>
+    <string name="lobby_cancelar">Cancelar</string>
+    <string name="lobby_criar_sala">Crear sala privada</string>
+    <string name="lobby_codigo_sala">Código de sala</string>
+    <string name="lobby_entrar_codigo">Unirse con código</string>
+    <string name="lobby_sala_criada">Código de sala: %1$s</string>
+    <string name="lobby_partilhar_codigo">Comparte este código con tu amigo</string>
+    <string name="lobby_voltar">Volver</string>
+    <string name="lobby_tentar_novamente">Intentar de nuevo</string>
+    <string name="lobby_partida_privada">Partida Privada</string>
+    <string name="lobby_erro_codigo">Código inválido.</string>
+    <string name="lobby_erro_generico">Error en el matchmaking.</string>
+
+    <!-- Jogo -->
+    <string name="jogo_oponente">Oponente</string>
+    <string name="jogo_tu">Tú</string>
+    <string name="jogo_pontuacao">Puntuación: %1$d</string>
+    <string name="jogo_aposta">Apuesta: %1$d</string>
+    <string name="jogo_objectivo">Objetivo: %1$d</string>
+    <string name="jogo_timer">Tiempo: %1$ds</string>
+    <string name="jogo_ronda">Ronda: %1$d</string>
+    <string name="jogo_pedir_carta">Pedir carta</string>
+    <string name="jogo_parar">Plantarse</string>
+    <string name="jogo_inventario">Inventario</string>
+    <string name="jogo_cartas_em_campo">Cartas en juego</string>
+    <string name="jogo_carta_oculta">?</string>
+
+    <!-- Resultados -->
+    <string name="resultados_vitoria">¡Victoria!</string>
+    <string name="resultados_derrota">Derrota</string>
+    <string name="resultados_vidas">Vidas restantes: %1$d</string>
+    <string name="resultados_jogar_outra_vez">Jugar otra vez</string>
+    <string name="resultados_menu">Menú principal</string>
+
+    <!-- Perfil / Loja -->
+    <string name="perfil_titulo">Perfil / Tienda</string>
+    <string name="perfil_pro_titulo">⭐ PRO — 1€/mes</string>
+    <string name="perfil_pro_descricao">Barajas exclusivas, temas de mesa, avatares animados y sin anuncios.</string>
+    <string name="perfil_subscrever">Suscribirse PRO</string>
+    <string name="perfil_cosmeticos">Cosméticos</string>
+    <string name="perfil_equipar">Equipar</string>
+    <string name="perfil_bloqueado">🔒 PRO</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_saltar">Saltar tutorial</string>
+    <string name="tutorial_comecar">¡Empezar a jugar!</string>
+    <string name="tutorial_progresso">%1$d / %2$d</string>
+    <string name="tutorial_passo1">Acércate lo más posible a 21 sin pasarte. ¡Quien esté más cerca al final de la ronda gana!</string>
+    <string name="tutorial_passo2">La baraja tiene 11 cartas numeradas del 1 al 11. Empiezas con 2 cartas — una boca arriba y una boca abajo. Solo tú conoces tu mano completa.</string>
+    <string name="tutorial_passo3">En cada turno puedes pedir carta, plantarte o jugar una carta especial. Cuando ambos se planten, se revelan las manos.</string>
+    <string name="tutorial_passo4">Cada jugador empieza con 8 vidas. Quien pierde la ronda pierde vidas igual a la apuesta de esa ronda. ¡La apuesta va aumentando — cuidado!</string>
+    <string name="tutorial_passo5">A partir de la 2ª ronda recibes cartas especiales. Úsalas para cambiar el rumbo del juego — cambian apuestas, objetivos, cartas en juego y mucho más.</string>
+    <string name="tutorial_passo6">El juego termina cuando un jugador llega a 0 vidas. ¡Buena suerte!</string>
+
+    <!-- Cartas especiais - tooltips -->
+    <string name="carta_shhh">Recibes una carta boca abajo.</string>
+    <string name="carta_2">Recibes la carta 2, si aún está disponible.</string>
+    <string name="carta_3">Recibes la carta 3, si aún está disponible.</string>
+    <string name="carta_4">Recibes la carta 4, si aún está disponible.</string>
+    <string name="carta_5">Recibes la carta 5, si aún está disponible.</string>
+    <string name="carta_6">Recibes la carta 6, si aún está disponible.</string>
+    <string name="carta_7">Recibes la carta 7, si aún está disponible.</string>
+    <string name="carta_sorte_dealer">Recibes la mejor carta disponible para el objetivo actual.</string>
+    <string name="carta_massacre">Aumenta la apuesta en 1, te da una carta especial extra y resta 15 segundos al temporizador.</string>
+    <string name="carta_amizade">Ambos jugadores reciben +2 cartas especiales.</string>
+    <string name="carta_escudo">Reduce la apuesta en 1.</string>
+    <string name="carta_escudo_mais">Reduce la apuesta en 2.</string>
+    <string name="carta_espada">Aumenta la apuesta en 1.</string>
+    <string name="carta_espada_mais">Aumenta la apuesta en 2.</string>
+    <string name="carta_ate17">El objetivo pasa a 17 para ambos jugadores.</string>
+    <string name="carta_ate24">El objetivo pasa a 24 para ambos jugadores.</string>
+    <string name="carta_ate27">El objetivo pasa a 27 para ambos jugadores.</string>
+    <string name="carta_mais_um">El objetivo aumenta en 1 para ambos jugadores.</string>
+    <string name="carta_menos_um">El objetivo disminuye en 1 para ambos jugadores.</string>
+    <string name="carta_renasce">Elimina la carta especial más reciente del campo y recibes una carta especial.</string>
+    <string name="carta_troca">Intercambia tu última carta con la última carta del oponente.</string>
+    <string name="carta_vai_pesca">Obliga al oponente a robar 1 carta del mazo.</string>
+    <string name="carta_destroi">Destruye la última carta especial jugada por el oponente.</string>
+    <string name="carta_resistente">Si llegas a 0 vidas al final de la ronda, recibes 1 vida.</string>
+    <string name="carta_retorno">Devuelve tu última carta al mazo en una posición aleatoria.</string>
+    <string name="carta_remove">Devuelve la última carta del oponente al mazo en una posición aleatoria.</string>
+    <string name="carta_renovar">Devuelve todas tus cartas al mazo y recibes 2 nuevas.</string>
+    <string name="carta_mais_quatro">Añade 4 cartas aleatorias (1-11) al mazo.</string>
+    <string name="carta_copia">Recibes una carta igual a la última que recibió el oponente.</string>
+    <string name="carta_super8">Si tienes el 8 y ganas la ronda, causas +2 de daño extra.</string>
+
+    <!-- Sobre -->
+    <string name="sobre_titulo">Acerca de</string>
+    <string name="sobre_versao">Versión 1.0</string>
+    <string name="sobre_descricao">21 Duel es un juego de cartas 1v1 desarrollado como proyecto académico para la asignatura de Computación Móvil en la Escola Náutica Infante D. Henrique.</string>
+
+    <!-- Definições -->
+    <string name="definicoes_titulo">Ajustes</string>
+    <string name="definicoes_idioma">Idioma</string>
+    <string name="definicoes_conta">Cuenta</string>
+    <string name="definicoes_terminar_sessao">Cerrar sesión</string>
+</resources>

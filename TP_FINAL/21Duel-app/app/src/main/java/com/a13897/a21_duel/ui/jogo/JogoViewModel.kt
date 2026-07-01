@@ -49,12 +49,25 @@ class JogoViewModel(
     fun iniciar(idPartidaRecebido: String, idJogador1: String, idJogador2: String, ehContraIA: Boolean) {
         idPartida = idPartidaRecebido
         contraIA = ehContraIA
-        idJogador1Real = idJogador1
-        idJogador2Real = idJogador2
-        iniciarPrimeiraRonda()
 
-        if (!contraIA) {
-            observarPartidaOnline()
+        if (!ehContraIA && idJogador1 == "online") {
+            // modo online — lê os UIDs reais do Firestore a partir do idPartida
+            viewModelScope.launch {
+                partidaRepository.observarPartida(idPartida).collect { partida ->
+                    if (partida != null && idJogador1Real.isEmpty()) {
+                        idJogador1Real = partida.idJogador1
+                        idJogador2Real = partida.idJogador2
+                        iniciarPrimeiraRonda()
+                        observarPartidaOnline()
+                    }
+                }
+            }
+        } else {
+            // vs IA — UIDs já vêm correctos pela rota
+            idJogador1Real = idJogador1
+            idJogador2Real = idJogador2
+            iniciarPrimeiraRonda()
+            if (!ehContraIA) observarPartidaOnline()
         }
     }
 

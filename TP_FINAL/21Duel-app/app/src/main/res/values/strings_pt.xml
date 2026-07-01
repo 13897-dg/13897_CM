@@ -1,0 +1,125 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">21 Duel</string>
+
+    <!-- Login -->
+    <string name="login_titulo">21 Duel</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_username">Nome de utilizador</string>
+    <string name="login_botao">Login</string>
+    <string name="login_criar_conta">Criar conta</string>
+    <string name="login_ja_tenho_conta">Já tenho conta</string>
+    <string name="login_erro_campos">Preenche todos os campos.</string>
+    <string name="login_erro_email_password">Preenche email e password.</string>
+    <string name="login_erro_generico">Erro ao fazer login.</string>
+    <string name="login_erro_registo">Erro ao criar conta.</string>
+
+    <!-- Menu -->
+    <string name="menu_jogar_online">Jogar Online</string>
+    <string name="menu_vs_ia">vs IA</string>
+    <string name="menu_tutorial">Tutorial</string>
+    <string name="menu_perfil_loja">Perfil / Loja</string>
+    <string name="menu_ola">Olá, %1$s</string>
+    <string name="menu_stats">Vitórias: %1$d  |  Derrotas: %2$d</string>
+
+    <!-- Lobby -->
+    <string name="lobby_titulo">Lobby</string>
+    <string name="lobby_procurar">Procurar jogo online</string>
+    <string name="lobby_a_procurar">A procurar adversário…</string>
+    <string name="lobby_cancelar">Cancelar</string>
+    <string name="lobby_criar_sala">Criar sala privada</string>
+    <string name="lobby_codigo_sala">Código da sala</string>
+    <string name="lobby_entrar_codigo">Entrar com código</string>
+    <string name="lobby_sala_criada">Código da sala: %1$s</string>
+    <string name="lobby_partilhar_codigo">Partilha este código com o teu amigo</string>
+    <string name="lobby_voltar">Voltar</string>
+    <string name="lobby_tentar_novamente">Tentar novamente</string>
+    <string name="lobby_partida_privada">Partida Privada</string>
+    <string name="lobby_erro_codigo">Código inválido.</string>
+    <string name="lobby_erro_generico">Erro no matchmaking.</string>
+
+    <!-- Jogo -->
+    <string name="jogo_oponente">Oponente</string>
+    <string name="jogo_tu">Tu</string>
+    <string name="jogo_pontuacao">Pontuação: %1$d</string>
+    <string name="jogo_aposta">Aposta: %1$d</string>
+    <string name="jogo_objectivo">Objectivo: %1$d</string>
+    <string name="jogo_timer">Timer: %1$ds</string>
+    <string name="jogo_ronda">Ronda: %1$d</string>
+    <string name="jogo_pedir_carta">Pedir carta</string>
+    <string name="jogo_parar">Parar</string>
+    <string name="jogo_inventario">Inventário</string>
+    <string name="jogo_cartas_em_campo">Cartas em campo</string>
+    <string name="jogo_carta_oculta">?</string>
+
+    <!-- Resultados -->
+    <string name="resultados_vitoria">Vitória!</string>
+    <string name="resultados_derrota">Derrota</string>
+    <string name="resultados_vidas">Vidas restantes: %1$d</string>
+    <string name="resultados_jogar_outra_vez">Jogar outra vez</string>
+    <string name="resultados_menu">Menu principal</string>
+
+    <!-- Perfil / Loja -->
+    <string name="perfil_titulo">Perfil / Loja</string>
+    <string name="perfil_pro_titulo">⭐ PRO — 1€/mês</string>
+    <string name="perfil_pro_descricao">Baralhos exclusivos, temas de mesa, avatares animados e sem anúncios.</string>
+    <string name="perfil_subscrever">Subscrever PRO</string>
+    <string name="perfil_cosmeticos">Cosméticos</string>
+    <string name="perfil_equipar">Equipar</string>
+    <string name="perfil_bloqueado">🔒 PRO</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_saltar">Saltar tutorial</string>
+    <string name="tutorial_comecar">Começar a jogar!</string>
+    <string name="tutorial_progresso">%1$d / %2$d</string>
+    <string name="tutorial_passo1">Chega o mais perto possível de 21 sem ultrapassar. Quem estiver mais perto no fim da ronda ganha!</string>
+    <string name="tutorial_passo2">O baralho tem 11 cartas numeradas de 1 a 11. Começas com 2 cartas — uma visível e uma escondida. Só tu sabes a tua mão completa.</string>
+    <string name="tutorial_passo3">Em cada turno podes pedir carta, ficar (stay) ou jogar uma carta especial. Quando ambos ficarem, as mãos são reveladas.</string>
+    <string name="tutorial_passo4">Cada jogador começa com 8 vidas. Quem perde a ronda perde vidas igual à aposta dessa ronda. A aposta vai aumentando — cuidado!</string>
+    <string name="tutorial_passo5">A partir da 2ª ronda recebes cartas especiais. Usa-as para virar o jogo a teu favor — mudam apostas, objectivos, cartas em campo e muito mais.</string>
+    <string name="tutorial_passo6">O jogo acaba quando um jogador chegar a 0 vidas. Boa sorte!</string>
+
+    <!-- Cartas especiais - tooltips -->
+    <string name="carta_shhh">Recebe uma carta virada para baixo.</string>
+    <string name="carta_2">Recebe a carta 2, se ainda estiver disponível.</string>
+    <string name="carta_3">Recebe a carta 3, se ainda estiver disponível.</string>
+    <string name="carta_4">Recebe a carta 4, se ainda estiver disponível.</string>
+    <string name="carta_5">Recebe a carta 5, se ainda estiver disponível.</string>
+    <string name="carta_6">Recebe a carta 6, se ainda estiver disponível.</string>
+    <string name="carta_7">Recebe a carta 7, se ainda estiver disponível.</string>
+    <string name="carta_sorte_dealer">Recebe a melhor carta disponível para o objectivo actual.</string>
+    <string name="carta_massacre">Aumenta a aposta em 1, dá-te uma carta especial extra e retira 15 segundos ao timer.</string>
+    <string name="carta_amizade">Ambos os jogadores recebem +2 cartas especiais.</string>
+    <string name="carta_escudo">Diminui a aposta em 1.</string>
+    <string name="carta_escudo_mais">Diminui a aposta em 2.</string>
+    <string name="carta_espada">Aumenta a aposta em 1.</string>
+    <string name="carta_espada_mais">Aumenta a aposta em 2.</string>
+    <string name="carta_ate17">O objectivo passa a 17 para ambos os jogadores.</string>
+    <string name="carta_ate24">O objectivo passa a 24 para ambos os jogadores.</string>
+    <string name="carta_ate27">O objectivo passa a 27 para ambos os jogadores.</string>
+    <string name="carta_mais_um">O objectivo aumenta em 1 para ambos os jogadores.</string>
+    <string name="carta_menos_um">O objectivo diminui em 1 para ambos os jogadores.</string>
+    <string name="carta_renasce">Apaga a carta especial mais recente da mesa e recebes uma carta especial.</string>
+    <string name="carta_troca">Troca a tua última carta com a última carta do oponente.</string>
+    <string name="carta_vai_pesca">Obriga o oponente a ir buscar 1 carta ao baralho.</string>
+    <string name="carta_destroi">Destrói a última carta especial usada pelo oponente.</string>
+    <string name="carta_resistente">Se chegares a 0 vidas no fim da ronda, recebes 1 vida.</string>
+    <string name="carta_retorno">Devolve a tua última carta ao baralho, numa posição aleatória.</string>
+    <string name="carta_remove">Devolve a última carta do oponente ao baralho, numa posição aleatória.</string>
+    <string name="carta_renovar">Devolve todas as tuas cartas ao baralho e recebes 2 novas.</string>
+    <string name="carta_mais_quatro">Adiciona 4 cartas aleatórias (1-11) ao baralho.</string>
+    <string name="carta_copia">Recebes uma carta igual à última que o oponente recebeu.</string>
+    <string name="carta_super8">Se tiveres o 8 e ganhares a ronda, causas +2 de dano extra.</string>
+
+    <!-- Sobre -->
+    <string name="sobre_titulo">Sobre</string>
+    <string name="sobre_versao">Versão 1.0</string>
+    <string name="sobre_descricao">21 Duel é um jogo de cartas 1v1 desenvolvido como projecto académico para a unidade curricular de Computação Móvel na Escola Náutica Infante D. Henrique.</string>
+
+    <!-- Definições -->
+    <string name="definicoes_titulo">Definições</string>
+    <string name="definicoes_idioma">Idioma</string>
+    <string name="definicoes_conta">Conta</string>
+    <string name="definicoes_terminar_sessao">Terminar sessão</string>
+</resources>

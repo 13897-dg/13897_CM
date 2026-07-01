@@ -93,7 +93,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("tutorial") {
-            TutorialScreen()
+            TutorialScreen(onVoltar = { navController.popBackStack() })
         }
     }
 }

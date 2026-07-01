@@ -1,0 +1,125 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">21 Duel</string>
+
+    <!-- Login -->
+    <string name="login_titulo">21 Duel</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_username">Username</string>
+    <string name="login_botao">Login</string>
+    <string name="login_criar_conta">Create account</string>
+    <string name="login_ja_tenho_conta">I already have an account</string>
+    <string name="login_erro_campos">Please fill in all fields.</string>
+    <string name="login_erro_email_password">Please fill in email and password.</string>
+    <string name="login_erro_generico">Error logging in.</string>
+    <string name="login_erro_registo">Error creating account.</string>
+
+    <!-- Menu -->
+    <string name="menu_jogar_online">Play Online</string>
+    <string name="menu_vs_ia">vs AI</string>
+    <string name="menu_tutorial">Tutorial</string>
+    <string name="menu_perfil_loja">Profile / Shop</string>
+    <string name="menu_ola">Hello, %1$s</string>
+    <string name="menu_stats">Wins: %1$d  |  Losses: %2$d</string>
+
+    <!-- Lobby -->
+    <string name="lobby_titulo">Lobby</string>
+    <string name="lobby_procurar">Find online game</string>
+    <string name="lobby_a_procurar">Searching for opponent…</string>
+    <string name="lobby_cancelar">Cancel</string>
+    <string name="lobby_criar_sala">Create private room</string>
+    <string name="lobby_codigo_sala">Room code</string>
+    <string name="lobby_entrar_codigo">Join with code</string>
+    <string name="lobby_sala_criada">Room code: %1$s</string>
+    <string name="lobby_partilhar_codigo">Share this code with your friend</string>
+    <string name="lobby_voltar">Back</string>
+    <string name="lobby_tentar_novamente">Try again</string>
+    <string name="lobby_partida_privada">Private Match</string>
+    <string name="lobby_erro_codigo">Invalid code.</string>
+    <string name="lobby_erro_generico">Matchmaking error.</string>
+
+    <!-- Jogo -->
+    <string name="jogo_oponente">Opponent</string>
+    <string name="jogo_tu">You</string>
+    <string name="jogo_pontuacao">Score: %1$d</string>
+    <string name="jogo_aposta">Bet: %1$d</string>
+    <string name="jogo_objectivo">Goal: %1$d</string>
+    <string name="jogo_timer">Timer: %1$ds</string>
+    <string name="jogo_ronda">Round: %1$d</string>
+    <string name="jogo_pedir_carta">Draw card</string>
+    <string name="jogo_parar">Stay</string>
+    <string name="jogo_inventario">Inventory</string>
+    <string name="jogo_cartas_em_campo">Cards in play</string>
+    <string name="jogo_carta_oculta">?</string>
+
+    <!-- Resultados -->
+    <string name="resultados_vitoria">Victory!</string>
+    <string name="resultados_derrota">Defeat</string>
+    <string name="resultados_vidas">Lives remaining: %1$d</string>
+    <string name="resultados_jogar_outra_vez">Play again</string>
+    <string name="resultados_menu">Main menu</string>
+
+    <!-- Perfil / Loja -->
+    <string name="perfil_titulo">Profile / Shop</string>
+    <string name="perfil_pro_titulo">⭐ PRO — €1/month</string>
+    <string name="perfil_pro_descricao">Exclusive card decks, table themes, animated avatars and no ads.</string>
+    <string name="perfil_subscrever">Subscribe PRO</string>
+    <string name="perfil_cosmeticos">Cosmetics</string>
+    <string name="perfil_equipar">Equip</string>
+    <string name="perfil_bloqueado">🔒 PRO</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_saltar">Skip tutorial</string>
+    <string name="tutorial_comecar">Start playing!</string>
+    <string name="tutorial_progresso">%1$d / %2$d</string>
+    <string name="tutorial_passo1">Get as close to 21 as possible without going over. Whoever is closest at the end of the round wins!</string>
+    <string name="tutorial_passo2">The deck has 11 cards numbered 1 to 11. You start with 2 cards — one face up and one face down. Only you know your full hand.</string>
+    <string name="tutorial_passo3">On each turn you can draw a card, stay, or play a special card. When both players stay, hands are revealed.</string>
+    <string name="tutorial_passo4">Each player starts with 8 lives. Whoever loses the round loses lives equal to the round\'s bet. The bet keeps increasing — watch out!</string>
+    <string name="tutorial_passo5">From round 2 onwards you receive special cards. Use them to turn the game in your favour — they change bets, goals, cards in play and much more.</string>
+    <string name="tutorial_passo6">The game ends when a player reaches 0 lives. Good luck!</string>
+
+    <!-- Cartas especiais - tooltips -->
+    <string name="carta_shhh">Receive a face-down card.</string>
+    <string name="carta_2">Receive card 2, if still available.</string>
+    <string name="carta_3">Receive card 3, if still available.</string>
+    <string name="carta_4">Receive card 4, if still available.</string>
+    <string name="carta_5">Receive card 5, if still available.</string>
+    <string name="carta_6">Receive card 6, if still available.</string>
+    <string name="carta_7">Receive card 7, if still available.</string>
+    <string name="carta_sorte_dealer">Receive the best available card for the current goal.</string>
+    <string name="carta_massacre">Increases the bet by 1, gives you an extra special card and removes 15 seconds from the timer.</string>
+    <string name="carta_amizade">Both players receive +2 special cards.</string>
+    <string name="carta_escudo">Decreases the bet by 1.</string>
+    <string name="carta_escudo_mais">Decreases the bet by 2.</string>
+    <string name="carta_espada">Increases the bet by 1.</string>
+    <string name="carta_espada_mais">Increases the bet by 2.</string>
+    <string name="carta_ate17">The goal becomes 17 for both players.</string>
+    <string name="carta_ate24">The goal becomes 24 for both players.</string>
+    <string name="carta_ate27">The goal becomes 27 for both players.</string>
+    <string name="carta_mais_um">The goal increases by 1 for both players.</string>
+    <string name="carta_menos_um">The goal decreases by 1 for both players.</string>
+    <string name="carta_renasce">Removes the most recent special card from the field and you receive a special card.</string>
+    <string name="carta_troca">Swaps your last card with the opponent\'s last card.</string>
+    <string name="carta_vai_pesca">Forces the opponent to draw 1 card from the deck.</string>
+    <string name="carta_destroi">Destroys the opponent\'s last played special card.</string>
+    <string name="carta_resistente">If you reach 0 lives at the end of the round, you receive 1 life.</string>
+    <string name="carta_retorno">Returns your last card to the deck in a random position.</string>
+    <string name="carta_remove">Returns the opponent\'s last card to the deck in a random position.</string>
+    <string name="carta_renovar">Returns all your cards to the deck and you receive 2 new ones.</string>
+    <string name="carta_mais_quatro">Adds 4 random cards (1-11) to the deck.</string>
+    <string name="carta_copia">You receive a card equal to the last one the opponent received.</string>
+    <string name="carta_super8">If you have the 8 and win the round, you deal +2 extra damage.</string>
+
+    <!-- Sobre -->
+    <string name="sobre_titulo">About</string>
+    <string name="sobre_versao">Version 1.0</string>
+    <string name="sobre_descricao">21 Duel is a 1v1 card game developed as an academic project for the Mobile Computing course at Escola Náutica Infante D. Henrique.</string>
+
+    <!-- Definições -->
+    <string name="definicoes_titulo">Settings</string>
+    <string name="definicoes_idioma">Language</string>
+    <string name="definicoes_conta">Account</string>
+    <string name="definicoes_terminar_sessao">Sign out</string>
+</resources>
